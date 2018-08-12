@@ -1,4 +1,4 @@
-class Complex {
+export default class Complex {
   constructor(re, im) {
     this.re = re || 0;
     this.im = im || 0;

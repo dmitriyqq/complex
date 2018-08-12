@@ -4,64 +4,11 @@
   <title></title>
   <style></style>
   <meta charset="UTF-8">
-  <script src="./lib/p5/p5.js"></script>
-  <script src="./lib/p5/addons/p5.dom.js"></script>
-
-  <script src="index.js"></script>
-  <script src="src/Lib/Complex.js"></script>
-  <script src="src/Lib/Parser.js"></script>
-  <!--
-    <script src="FourDimensionalArray.js"></script>
-    <script src="render2d.js"></script>
-    <script src="DataViz3D.js"></script>
-    <script src="DataVizGrid.js"></script>
-    <script src="src/Model/Slice2D.js"></script>
-    <script src="src/Model/Slice3D.js"></script>
-  -->
-
-  <script src="src/App.js"></script>
-
-  <script src="src/UI/Controls.js"></script>
-
-  <script src="src/Model/Model.js"></script>
-
-  <script src="src/Model/Projection3D.js"></script>
-
-  <script src="src/Curves/Curves.js"></script>
-
-  <!--  Deprecated  
-  <script src="src/Curves/Circle.js"></script>
-  <script src="src/Curves/Parabola.js"></script>
-  <script src="src/Curves/Hyperbola.js"></script>
-  -->
-  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="main.css">
 </head>
 
 <body>
-  <div class="root">
-    <div class="headerPanel">
-      <input class="sliceMode" type="radio" name="modeSwitch" value="slice" disabled>
-      <label for="modeSwitch">Трехмерные куски</label>
-
-      <input class="gridMode" type="radio" name="modeSwitch" value="grid" disabled>
-      <label for="modeSwitch">Двумерные куски</label>
-
-      <input class="projMode" type="radio" name="modeSwitch" value="slice" checked>
-      <label for="modeSwitch">Проекция</label>
-    </div>
-
-    <div class="content">
-      <div class="canvasPlaceholder">
-      </div>
-
-      <div class="controls">
-        <div id="SideBar"> </div>
-
-      </div>
-    </div>
-  </div>
-
-
+  <div id="root"></div>
 </body>
 
 </html>

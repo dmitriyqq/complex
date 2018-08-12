@@ -1,15 +1,11 @@
+import Complex from "Lib/Complex";
+import { Parser } from "Lib/Parser";
+
 let GlobalParser = new Parser();
 window.globalParser = GlobalParser;
-
 class Curve {
   constructor(formula, params) {
-    this.colorA = {
-      r: Math.round(255 * Math.random()),
-      g: Math.round(255 * Math.random()),
-      b: Math.round(255 * Math.random())
-    };
-
-    this.colorB = {
+    this.color = {
       r: Math.round(255 * Math.random()),
       g: Math.round(255 * Math.random()),
       b: Math.round(255 * Math.random())
@@ -23,9 +19,8 @@ class Curve {
         func.setVariable(param, new Complex(0, 0));
       }
     }
-
     if (params)
-      for (param of params) {
+      for (let param of params) {
         this.setParam(param.label, param.value);
       }
   }
@@ -49,25 +44,18 @@ class Curve {
     }
   }
 
-  getData(app) {
-    const r_rez = app.xr_rez;
-    const i_rez = app.xi_rez;
-    const r_start = app.xr_start;
-    const i_start = app.xi_start;
-    const r_step = app.xr_step;
-    const i_step = app.xi_step;
-
+  getData(model) {
     let data = [];
 
-    for (let i = 0; i < r_rez; i++) {
-      for (let j = 0; j < i_rez; j++) {
-        const xr = r_start + r_step * i + r_step / 2;
-        const xi = i_start + i_step * j + r_step / 2;
-        // console.log(this.y);
+    for (let i = 0; i < model.matrixSize; i++) {
+      for (let j = 0; j < model.matrixSize; j++) {
+        const xr = model.start.xr + model.step * i + model.step / 2;
+        const xi = model.start.xi + model.step * j + model.step / 2;
+        let formulaIndex = 0;
         for (let formula of this.y) {
           formula.setVariable("x", new Complex(xr, xi));
           const y = formula.calc();
-          data.push({ xr, xi, yr: y.re, yi: y.im });
+          data.push({ xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++ });
         }
       }
     }
@@ -76,33 +64,42 @@ class Curve {
   }
 }
 
-class Circle extends Curve {
+export class Circle extends Curve {
   constructor(params) {
     const formula = [
-      GlobalParser.eval("((2 * y0) + (0- 4*((x - x0)^2 - r^2))^ (1 / 2))/2"),
-      GlobalParser.eval("((2 * y0) - (0- 4*((x - x0)^2 - r^2))^ (1 / 2))/2")
+      GlobalParser.eval("((2*y0)+(0-4*((x-x0)^2-r^2))^(1/2))/2"),
+      GlobalParser.eval("((2*y0)-(0-4*((x-x0)^2-r^2))^(1/2))/2")
     ];
     super(formula, params);
   }
 }
 
-class Line extends Curve {
+export class Line extends Curve {
   constructor(params) {
     const formula = [GlobalParser.eval("A*x+B")];
     super(formula, params);
   }
 }
 
-class Parabola extends Curve {
+export class Parabola extends Curve {
   constructor(params) {
     const formula = [GlobalParser.eval("A*x^2")];
     super(formula, params);
   }
 }
 
-class Hyperbola extends Curve {
+export class Hyperbola extends Curve {
   constructor(params) {
     const formula = [GlobalParser.eval("A / x")];
     super(formula, params);
   }
 }
+
+const Curves = [
+  { name: "Окружность", curve: Circle },
+  { name: "Гипербола", curve: Hyperbola },
+  { name: "Прямая", curve: Line },
+  { name: "Парабола", curve: Parabola }
+];
+
+export default Curves;

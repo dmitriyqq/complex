@@ -1,3 +1,5 @@
+import Complex from "Lib/Complex";
+
 const TokenTypes = Object.freeze({
   OPERATION: 0,
   PARAMETR: 1,
@@ -121,7 +123,99 @@ function isParametr(str, start_pos) {
   }
 }
 
-class Parser {
+export class Formula {
+  constructor(node, text) {
+    this.root = node;
+    this.text = text;
+    this.params = new Set();
+
+    let params = this.getParams(this.root);
+    for (let param of params) {
+      this.params[param] = new Complex(0, 0);
+    }
+  }
+
+  setConstants(constParams) {
+    for (let param of constParams) {
+      this.params[param] = constParams[this.params];
+    }
+  }
+
+  setVariable(param, val) {
+    this.params[param] = val;
+  }
+
+  getParams() {
+    return this.params;
+  }
+
+  getParam(paramName) {
+    return this.params[paramName];
+  }
+
+  calc(node) {
+    try {
+      if (!node) node = this.root;
+      if (node.token.type == TokenTypes.OPERATION) {
+        let operandA = this.calc(node.left);
+        let operandB = this.calc(node.right);
+        if (!(operandA instanceof Complex)) {
+          operandA = new Complex(operandA.re, operandA.im);
+        }
+        if (!(operandB instanceof Complex)) {
+          operandB = new Complex(operandB.re, operandB.im);
+        }
+        //console.log(operandA);
+        //console.log(operandB);
+        switch (node.token.val) {
+          case "+":
+            return operandA.add(operandB);
+          case "-":
+            return operandA.sub(operandB);
+          case "/":
+            return operandA.divide(operandB);
+          case "*":
+            return operandA.mult(operandB);
+          case "^":
+            return operandA.pow(operandB);
+        }
+      } else if (node.token.type == TokenTypes.NUMBER) {
+        return node.token.val;
+      } else if (node.token.type == TokenTypes.PARAMETR) {
+        return this.params[node.token.val];
+      }
+    } catch (err) {
+      return new Complex();
+    }
+  }
+
+  _getParams(node) {
+    let params = [];
+    if (node.token.type == TokenTypes.OPERATION) {
+      params = params.concat(this._getParams(node.left));
+      params = params.concat(this._getParams(node.right));
+      return params;
+    } else if (node.token.type == TokenTypes.PARAMETR) {
+      if (node.token.val != "x") params.push(node.token.val);
+    }
+    return params;
+  }
+
+  getParamNames() {
+    let params = this._getParams(this.root);
+    let ans = [];
+    params = params.filter(x => {
+      if (ans.indexOf(x) == -1) {
+        ans.push(x);
+        return true;
+      } else return false;
+    });
+    console.log(ans);
+    return params;
+  }
+}
+
+export class Parser {
   tokenize(str) {
     str = str.split(" ").join("");
     let i = 0,
@@ -235,97 +329,5 @@ class Parser {
 
   setParam(param, val) {
     this.params[param] = val;
-  }
-}
-
-class Formula {
-  constructor(node, text) {
-    this.root = node;
-    this.text = text;
-    this.params = new Set();
-
-    let params = this.getParams(this.root);
-    for (let param of params) {
-      this.params[param] = new Complex(0, 0);
-    }
-  }
-
-  setConstants(constParams) {
-    for (param of constParams) {
-      this.params[param] = constParams[this.params];
-    }
-  }
-
-  setVariable(param, val) {
-    this.params[param] = val;
-  }
-
-  getParams() {
-    return this.params;
-  }
-
-  getParam(paramName) {
-    return this.params[paramName];
-  }
-
-  calc(node) {
-    try {
-      if (!node) node = this.root;
-      if (node.token.type == TokenTypes.OPERATION) {
-        let operandA = this.calc(node.left);
-        let operandB = this.calc(node.right);
-        if (!(operandA instanceof Complex)) {
-          operandA = new Complex(operandA.re, operandA.im);
-        }
-        if (!(operandB instanceof Complex)) {
-          operandB = new Complex(operandB.re, operandB.im);
-        }
-        //console.log(operandA);
-        //console.log(operandB);
-        switch (node.token.val) {
-          case "+":
-            return operandA.add(operandB);
-          case "-":
-            return operandA.sub(operandB);
-          case "/":
-            return operandA.divide(operandB);
-          case "*":
-            return operandA.mult(operandB);
-          case "^":
-            return operandA.pow(operandB);
-        }
-      } else if (node.token.type == TokenTypes.NUMBER) {
-        return node.token.val;
-      } else if (node.token.type == TokenTypes.PARAMETR) {
-        return this.params[node.token.val];
-      }
-    } catch (err) {
-      return new Complex();
-    }
-  }
-
-  _getParams(node) {
-    let params = [];
-    if (node.token.type == TokenTypes.OPERATION) {
-      params = params.concat(this._getParams(node.left));
-      params = params.concat(this._getParams(node.right));
-      return params;
-    } else if (node.token.type == TokenTypes.PARAMETR) {
-      if (node.token.val != "x") params.push(node.token.val);
-    }
-    return params;
-  }
-
-  getParamNames() {
-    let params = this._getParams(this.root);
-    let ans = [];
-    params = params.filter(x => {
-      if (ans.indexOf(x) == -1) {
-        ans.push(x);
-        return true;
-      } else return false;
-    });
-    console.log(ans);
-    return params;
   }
 }

@@ -1,23 +1,55 @@
-class Projection3D {
-  constructor(model, cellSize) {
+export default class Projection3D {
+  constructor(model, cellSize, mappings) {
+    this.totalSize = model.matrixSize;
     this.data = model.data;
+
+    // Used for color
     this.curves = model.curves;
-    this.cell_size = cellSize;
-    this.model = model;
 
-    this.projA_data = new Set();
-    this.projB_data = new Set();
+    this.cellSize = cellSize;
 
-    this.axies_map = {};
+    this.projData = new Set();
 
-    this.axies_map["x"] = "xr";
-    this.axies_map["z"] = "xi";
-    this.axies_map["y"] = "yr";
-    this.axies_map["u"] = "yi";
-
+    if (mappings) {
+      this.axies = mappings;
+    } else {
+      this.axies = {
+        x: { label: "xr", inverted: false },
+        y: { label: "yr", inverted: false },
+        z: { label: "xi", inverted: false }
+      };
+    }
+    console.log(this.axies);
     this.calcData();
   }
 
+  calcData() {
+    console.log(this.data);
+    for (let value of this.data) {
+      let curve;
+      for (let el of this.curves) {
+        if (el.index == value.curve) {
+          curve = el;
+        }
+      }
+      this.projData.add({
+        x:
+          value[this.axies["x"].label] * (this.axies["x"].inverted ? -1 : 1) +
+          (this.axies["x"].inverted ? Math.round(this.totalSize-1) : 0),
+        y:
+          value[this.axies["y"].label] * (this.axies["y"].inverted ? -1 : 1) +
+          (this.axies["y"].inverted ? Math.round(this.totalSize-1) : 0),
+        z:
+          value[this.axies["z"].label] * (this.axies["z"].inverted ? -1 : 1) +
+          (this.axies["z"].inverted ? Math.round(this.totalSize-1) : 0),
+        curve: value.curve,
+        formula: value.formula,
+        color: curve.color
+      });
+    }
+  }
+
+  /* Deprecated
   render(graphics) {
     // graphics.resetMatrix();
     graphics.background(251);
@@ -90,34 +122,5 @@ class Projection3D {
     // 0-coord box;
     graphics.box(5);
   }
-
-  calcData() {
-    //console.log(this.proj_data._data);
-
-    for (let value of this.data) {
-      let ccurve;
-      for (let el of this.curves) {
-        if (el[1] == value.curve) {
-          ccurve = el[0];
-        }
-      }
-
-      const colorA = ccurve.colorA;
-      const colorB = ccurve.colorB;
-
-      this.projA_data.add({
-        x: value[this.axies_map["x"]],
-        y: value[this.axies_map["y"]],
-        z: value[this.axies_map["z"]],
-        color: colorA
-      });
-
-      this.projB_data.add({
-        x: value[this.axies_map["x"]],
-        y: value[this.axies_map["y"]],
-        z: -value[this.axies_map["u"]],
-        color: colorB
-      });
-    }
-  }
+*/
 }

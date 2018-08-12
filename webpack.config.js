@@ -43,17 +43,18 @@ module.exports = {
       }
     ]
   },
+  devtool: "source-map",
 
   resolve: {
     alias: {
-      Curves: path.resolve(__dirname, "./src/Curves"),
       Lib: path.resolve(__dirname, "./src/Lib"),
       Model: path.resolve(__dirname, "./src/Model"),
       UI: path.resolve(__dirname, "./src/UI"),
-      Components: path.resolve(__dirname, "./src/UI/Components")
+      Components: path.resolve(__dirname, "./src/UI/Components"),
+      View: path.resolve(__dirname, "./src/View"),
+      Root: path.resolve(__dirname, "./src"),
+      ThreePrograms: path.resolve(__dirname, "./src/View/ThreePrograms")
     },
-
-    modules: ["node_modules", path.resolve(__dirname, "app")],
 
     extensions: [".js", ".json", ".jsx", ".css"]
   },
@@ -66,20 +67,20 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new HtmlWebpackPlugin({
       template: path.join(__dirname, "./src/assets/index.html"),
+      publicPath: outputPath,
       filename: "index.html",
-      title: "Chat",
+      title: "Complex",
       path: outputPath
     })
   ],
 
   devServer: {
-    contentBase: path.resolve(__dirname, "./dist"),
+    contentBase: path.resolve(__dirname, "./src"),
     port: 8080,
     historyApiFallback: true,
     inline: true,
     hot: true,
-    host: "0.0.0.0",
+    host: "localhost",
     disableHostCheck: true
   }
-  /* Advanced configuration (click to show) */
 };
