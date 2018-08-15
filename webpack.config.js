@@ -20,7 +20,7 @@ module.exports = {
         enforce: "post",
         loader: "babel-loader",
         options: {
-          presets: ["env", "react"]
+          presets: ["stage-2", "react"]
         }
       },
 
@@ -53,7 +53,9 @@ module.exports = {
       Components: path.resolve(__dirname, "./src/UI/Components"),
       View: path.resolve(__dirname, "./src/View"),
       Root: path.resolve(__dirname, "./src"),
-      ThreePrograms: path.resolve(__dirname, "./src/View/ThreePrograms")
+      ThreePrograms: path.resolve(__dirname, "./src/View/ThreePrograms"),
+      Redux: path.resolve(__dirname, "./src/Redux"),
+      Reducers: path.resolve(__dirname, "./src/Redux/Reducers")
     },
 
     extensions: [".js", ".json", ".jsx", ".css"]

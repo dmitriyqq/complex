@@ -1,12 +1,9 @@
 import React from "react";
+import { connect } from "react-redux";
 
-import { ViewConstants, DEFAULT_CODE } from "Root/Constants";
+import { ViewConstants, Action } from "Root/Constants";
 import AceEditor from "react-ace";
 
-import Model from "Model/Model.js";
-import * as Curves from "Model/Curves";
-import {Parser, Formula} from "Lib/Parser";
-import Complex from "Lib/Complex";
 
 import "brace/mode/javascript";
 import "brace/theme/monokai";
@@ -51,17 +48,16 @@ class Controls extends React.Component {
   }
 }
 
-export default class Console extends React.Component {
+class Console extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      code: this.props.code || DEFAULT_CODE
+      code: this.props.model.code
     };
 
-    this.handleBuildModel = this.handleBuildModel.bind(this);
+    this.wrapper = this.wrapper.bind(this); 
     this.handleCodeChange = this.handleCodeChange.bind(this);
-    this.handleClearModel = this.handleClearModel.bind(this);
   }
 
   getStyle() {
@@ -78,34 +74,21 @@ export default class Console extends React.Component {
     };
   }
 
-  handleBuildModel() {
-    this.buildModel(this.state.code);
-  }
-
-  handleClearModel(){
-    this.buildModel(DEFAULT_CODE, new Model());
-  }
-
-  buildModel(code, model){
-    try {
-      const userFunction = eval(code);
-      const newModel = userFunction(Model, Curves, Complex, Parser, Formula);
-      this.props.onBuild(model ? model : newModel, code);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   handleCodeChange(newCode) {
     this.setState({ code: newCode });
   }
 
-
+  wrapper(){
+    this.props.handleBuildModel(this.state.code);
+  }
 
   render() {
     return (
-      <div style={{zIndex: 100}}>
-        <Controls onBuildModel={this.handleBuildModel} onClearModel={this.handleClearModel}/>
+      <div style={{ zIndex: 100 }}>
+        <Controls
+          onBuildModel={this.wrapper}
+          onClearModel={this.props.handleClearModel}
+        />
         <AceEditor
           style={this.getStyle()}
           mode="javascript"
@@ -119,3 +102,31 @@ export default class Console extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  console.log(state);
+  return {
+    config: state.ViewsWrapperConfig,
+    model: state.Model 
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    handleBuildModel: code => {
+      dispatch({
+        type: Action.BUILD_CODE, code
+      })
+    },
+    handleClearModel: () => {
+      dispatch({
+        type: Action.CLEAR_CODE
+      })
+    }
+  }
+}
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Console);

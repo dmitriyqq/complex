@@ -5,8 +5,8 @@ export const ViewConstants = {
   CONSOLE_WIDTH: 500
 };
 
-export const DEFAULT_CODE = `(Model, Curves, Complex, Parser, Formula) => {
-      let model = new Model();
+export const DEFAULT_CODE = `(Model, Curves, Complex, Parser, Formula, params) => {
+      let model = new Model(params);
       model.addCurve(
         new Curves.Circle([
           { label: "x0", value: new Complex(0, 0) },
@@ -16,3 +16,11 @@ export const DEFAULT_CODE = `(Model, Curves, Complex, Parser, Formula) => {
       );
       return model;
     }`;
+
+export const Action = {
+  VIEW_WRAPPER_CHANGED: 1,
+  BUILD_CODE: 2,
+  CLEAR_MODEL: 3,
+  CHANGE_MATRIX_PROPS: 4,
+  PROJECTION_CONFIG_UPDATE: 5,
+}

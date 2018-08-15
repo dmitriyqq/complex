@@ -1,9 +1,7 @@
-import { Circle } from "./Curves";
-import Complex from "Lib/Complex";
 const LABELS = ["xr", "xi", "yr", "yi"];
 
 export default class Model {
-  constructor(params = {}) {
+  constructor(params = {}, curves = new Set()) {
     this.matrixSize = params.matrixSize || 31;
     this.size = params.size || 4.0;
 
@@ -12,8 +10,8 @@ export default class Model {
       label =>
         (this.center[label] = params.center ? params.center[label] || 0 : 0)
     );
-
-    this.curves = new Set();
+    this.initBox();
+    this.curves = curves;
     this.data = new Set();
 
     // Array of functions to call, after rebuild model
@@ -29,9 +27,15 @@ export default class Model {
     );
     */
   }
+  exportParams(){
+    return {
+      center: this.center,
+      matrixSize: this.matrixSize,
+      size: this.size
+    }
+  }
 
   initBox() {
-    console.log(this);
     this.start = {};
     LABELS.map(
       label => (this.start[label] = this.center[label] - this.size / 2)
@@ -45,7 +49,6 @@ export default class Model {
 
   rebuild() {
     this.initBox();
-    console.log(this.curves);
     this.data = new Set();
     for (let curve of this.curves) {
       if (!curve.disabled) this.renderCurve(curve);
@@ -72,14 +75,13 @@ export default class Model {
     // window.localStorage.setItem("curves", JSON.stringify([...this.curves]));
     // let curves = window.localStorage.getItem("curves");
     // console.log("backuping curves");
-    // console.log(curves);
   }
+    // console.log(curves);
 
   tryLoadLocalStorage() {
     // !TODO load state from local storage
     let curves = window.localStorage.getItem("curves");
     if (JSON.parse(curves).entries) {
-      console.log(curves);
       this.curves = new Map(JSON.parse(curves));
     }
   }
@@ -113,7 +115,6 @@ export default class Model {
   }
 
   renderCurve(curve) {
-    console.log(curve);
     const data = curve.getData(this);
     // console.log(data);
     this.addData(data, curve.index);

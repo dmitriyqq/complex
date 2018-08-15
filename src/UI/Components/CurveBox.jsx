@@ -1,88 +1,22 @@
 import React from "react";
+import { connect } from "react-redux";
 
-import Curves, { Circle, Hyperbola, Parabola, Line } from "Model/Curves";
 import CurveItem from "Components/CurveItem";
 
-const CurveBoxHeaderStyle = {
-  display: "flex",
-  flexDirection: "row",
-  justifyContent: "center"
-};
-
-class CurveBoxHeader extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedType: "Окружность"
-    };
-
-    this.handleCreateCurve = this.handleCreateCurve.bind(this);
-  }
-
-  getCurve() {
-    switch (this.state.selectedType) {
-      case "Окружность":
-        return new Circle();
-    }
-  }
-
-  handleCreateCurve() {
-    const curve = this.getCurve();
-    this.props.model.addCurve(curve);
-    this.props.onCreateCurve(curve);
-  }
-
-  render() {
-    return (
-      <div>
-        <div>Add Curve</div>
-        <div style={CurveBoxHeaderStyle}>
-          <select name="curveType">
-            {Curves.map((curveType, i) => (
-              <option key={i} value={curveType.name}>
-                {curveType.name}
-              </option>
-            ))}
-          </select>
-          <button onClick={this.handleCreateCurve}>Создать</button>
-          <button>Очистить</button>
-        </div>
-      </div>
-    );
-  }
+const CardStyle = {
+  backgroundColor: "#333",
+  padding: "5px",
+  margin: "10px 5px 10px 5px",
+  border: "1px solid gray"
 }
 
-export default class CurveBox extends React.Component {
-  constructor(props) {
-    super(props);
-    let curves = [];
-    for (let curve of this.props.model.curves) {
-      curves.push(curve);
-    }
-
-    this.state = {
-      curves
-    };
-
-    this.handleCreateCurve = this.handleCreateCurve.bind(this);
-  }
-
-  handleCreateCurve(curve) {
-    this.setState(prev => {
-      prev.curves.push(curve);
-      return {};
-    });
-  }
-
+class CurveBox extends React.Component {
   render() {
+    let array = Array.from(this.props.model.model.curves);
     return (
-      <div style={{}}>
-        <CurveBoxHeader
-          model={this.props.model}
-          onCreateCurve={this.handleCreateCurve}
-        />
+      <div style={CardStyle}>
         <div>
-          {this.state.curves.map((curve, i) => (
+          {array.map((curve, i) => (
             <CurveItem key={i} curve={curve} />
           ))}
         </div>
@@ -90,3 +24,13 @@ export default class CurveBox extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    model: state.Model
+  }
+};
+
+export default connect(
+  mapStateToProps
+)(CurveBox);

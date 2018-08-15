@@ -1,4 +1,7 @@
 import React from "react";
+import { connect } from "react-redux";
+
+import { Action } from "Root/Constants";
 
 class Parameter extends React.Component {
   constructor(props) {
@@ -38,42 +41,39 @@ const ProjectionPositionStyle = {
   maxHeight: "80px"
 };
 
-export default class ProjectionPosition extends React.Component {
+const CardStyle = {
+  backgroundColor: "#333",
+  padding: "5px",
+  margin: "10px 5px 10px 5px",
+  border: "1px solid gray"
+};
+
+export class ProjectionPosition extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  handleChange(label, value) {
-    if (label == "matrixSize") {
-      this.props.model.matrixSize = value;
-    } else if (label == "size") {
-      this.props.model.size = value;
-    } else {
-      this.props.model.center[label] = value;
-    }
-    this.props.model.rebuild();
-  }
-
   render() {
+    const model = this.props.model.model;
     const params = [
-      { label: "matrixSize", value: this.props.model.matrixSize },
-      { label: "size", value: this.props.model.size },
-      { label: "xr", value: this.props.model.center.xr },
-      { label: "xi", value: this.props.model.center.xi },
-      { label: "yr", value: this.props.model.center.yr },
-      { label: "yi", value: this.props.model.center.yi }
+      { label: "matrixSize", value: model.matrixSize },
+      { label: "size", value: model.size },
+      { label: "xr", value: model.center.xr },
+      { label: "xi", value: model.center.xi },
+      { label: "yr", value: model.center.yr },
+      { label: "yi", value: model.center.yi }
     ];
 
     return (
-      <div>
-        <div>Projection Position</div>
+      <div style={CardStyle}>
+        <div style={{ textAlign: "center" }}>Projection Position</div>
         <div style={ProjectionPositionStyle}>
           {params.map((param, i) => (
             <Parameter
               key={i}
               label={param.label}
               default={param.value}
-              onChange={this.handleChange.bind(this)}
+              onChange={this.props.handleChange}
             />
           ))}
         </div>
@@ -81,3 +81,26 @@ export default class ProjectionPosition extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    model: state.Model
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    handleChange: (label, value) => {
+      dispatch({
+        type: Action.CHANGE_MATRIX_PROPS,
+        label,
+        value
+      });
+    }
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ProjectionPosition);

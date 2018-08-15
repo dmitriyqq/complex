@@ -1,8 +1,12 @@
 import React from "react";
+import { connect } from "react-redux";
+
 
 import CubicProgram from "ThreePrograms/CubicProgram";
 import PolygonProgram from "ThreePrograms/PolygonProgram";
 import ThreeWrapper from "Components/ThreeWrapper";
+
+import { Action } from "Root/Constants"
 
 const ViewBoxStyle = ViewBox => {
   return {
@@ -43,12 +47,12 @@ class Header extends React.Component {
 
   handleModeChange() {
     this.state.renderMethod =
-      this.state.renderMethod == "Cubes" ? "Polygons" : "Cubes";
+      this.state.renderMethod === "Cubes" ? "Polygons" : "Cubes";
+ 
     this.props.onChange(this.state);
   }
 
   handleInvertedChange(e) {
-    console.log(e.target.name)
     this.state.mappings[e.target.name].inverted = !this.state.mappings[
       e.target.name
     ].inverted;
@@ -100,12 +104,18 @@ class Header extends React.Component {
   }
 }
 
-export default class ViewBox extends React.Component {
-  constructor(props) {
-    console.log("constructing view box");
+class ViewBox extends React.Component {
+  constructor(props){
     super(props);
-    this.state = {
-      config: {
+    this.wrapConfigChange = this.wrapConfigChange.bind(this);
+  }
+
+  wrapConfigChange(config){
+    this.props.updateConfig(this.props.i, config)
+  }
+
+  render() {
+    const defaultConfig = {
         renderMethod: "Cubes",
         mappings: {
           x: {
@@ -121,36 +131,56 @@ export default class ViewBox extends React.Component {
             inverted: false
           }
         }
-      }
     };
 
-    this.handleChange = this.handleChange.bind(this);
-  }
+    const config = this.props.model.projConfigs[this.props.i] || defaultConfig;
+    const model = this.props.model.model;
 
-  render() {
-    if (this.state.config.renderMethod == "Cubes") {
-      this.program = new CubicProgram(this.props.model, this.state.config.mappings);
+    if (config.renderMethod == "Cubes") {
+      this.program = new CubicProgram(
+        model,
+        config.mappings
+      );
     } else {
-      this.program = new PolygonProgram(this.props.model, this.state.config.mappings);
+      this.program = new PolygonProgram(
+        model,
+        config.mappings
+      );
     }
 
     return (
       <div style={ViewBoxStyle(this)}>
-        <Header onChange={this.handleChange} config={this.state.config} />
+        <Header onChange={this.wrapConfigChange} config={config} />
         <ThreeWrapper
           camType={this.props.camType}
           camera={this.props.camera}
           program={this.program}
-          config={this.state.config}
           width={this.props.config.width}
           height={this.props.config.height}
         />
       </div>
     );
   }
+}
 
-  handleChange(config) {
-    console.log(config);
-    this.setState(() => ({ config }));
+const mapStateToProps = state => {
+  return {
+    model: state.Model 
+  }
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    updateConfig: (id, config) => {
+      dispatch({
+        type: Action.PROJECTION_CONFIG_UPDATE,
+        id, config
+      })
+    }
   }
 }
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ViewBox);

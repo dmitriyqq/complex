@@ -8,6 +8,11 @@ export default class PolygonPrograms extends CubicProgram {
     super(model, mappings);
   }
 
+  clean(){
+    delete this.projection;
+    delete this.data;
+  }
+
   render() {
     console.log("projecting ");
     this.projection = new Projection3D(this.model, 1, this.mappings);
@@ -32,19 +37,22 @@ export default class PolygonPrograms extends CubicProgram {
       side: THREE.DoubleSide
       //wireframe: true
     });
+    
     const getMatrerial = color => {
       let existing = materialsMap.get(color);
 
       if (existing) {
         return existing;
       } else {
-        let material = new THREE.MeshBasicMaterial({
-          color: new THREE.Color(color.r / 255, color.g / 255, color.b / 255)
+        let material = new THREE.MeshLambertMaterial({
+          color: new THREE.Color(color.r / 255, color.g / 255, color.b / 255),
+          side: THREE.DoubleSide
         });
         materialsMap.set(color, material);
         return material;
       }
     };
+    
     let chunks = new Map();
     console.log(this.data);
     for (let data of this.data) {
@@ -57,7 +65,8 @@ export default class PolygonPrograms extends CubicProgram {
     }
     console.log(chunks);
 
-    for (let [chunk_label, chunk] of chunks) {
+    for (let [chunkLabel, chunk] of chunks) {
+      chunkLabel;
       let geometry = new THREE.Geometry();
       let maxX = -10000,
         minX = 10000;
@@ -84,7 +93,6 @@ export default class PolygonPrograms extends CubicProgram {
         grid[box.x][box.z] = box;
       }
 
-      let used = new Set();
       for (let i = 0; i < grid.length - 1; i++) {
         for (let j = 0; j < grid.length - 1; j++) {
           if (grid[i][j] && grid[i][j + 1] && grid[i + 1][j]) {
@@ -107,18 +115,27 @@ export default class PolygonPrograms extends CubicProgram {
           }
         }
       }
-
-      console.log(grid);
+      console.log(chunk);
+      // console.log(grid);
       geometry.computeFaceNormals();
       geometry.computeVertexNormals();
-      let mesh = new THREE.Mesh(geometry, defaultMaterial);
+      let material;
+      for(let c of this.model.curves){
+        if(c.index === chunk[0].curve)
+           material = getMatrerial(c.color);
+      };
+
+
+      
+      let mesh = new THREE.Mesh(geometry, material);
       this.addGrid();
       this.scene.add(mesh);
     }
 
     this.light = new THREE.DirectionalLight(0xff00ff, 0.7);
     this.glight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 0.3);
-    this.light.position.set(0, 0, 1).normalize();
+    console.log(this.camera.position)
+    this.light.position.set(this.camera.position).normalize();
     this.light.castShadow = true;
     this.scene.add(this.light);
     this.scene.add(this.glight);

@@ -1,12 +1,12 @@
 import React from "react";
+import { connect } from "react-redux";
 
 import Header from "UI/Header";
 import ViewsWrapper from "UI/ViewsWrapper";
 import Sidebar from "UI/SideBar";
 import Console from "UI/Console";
 
-import { ViewConstants, DEFAULT_CODE } from "Root/Constants";
-import Model from "Model/Model";
+import { ViewConstants } from "Root/Constants";
 
 const AppStyle = {
   display: "flex",
@@ -20,28 +20,17 @@ const ContentStyle = {
   color: "black"
 };
 
-export default class App extends React.Component {
+ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    const DEFAULT_CONFIG = {
-      editor: true,
-      views: "1",
-      singleCam: false,
-      camType: "Perspective"
-    }
-
     this.state = {
       width: window.innerWidth - ViewConstants.SIDEBAR_WIDTH,
-      height: window.innerHeight - ViewConstants.HEADER_HEIGHT,
-      model: new Model(),
-      appConfig: DEFAULT_CONFIG,
-      currentCode: DEFAULT_CODE
+      height: window.innerHeight - ViewConstants.HEADER_HEIGHT
     };
 
     window.onresize = this.handleResize.bind(this);
-    this.handleUserBuildModel = this.handleUserBuildModel.bind(this);
-    this.handleHeaderChange = this.handleHeaderChange.bind(this);
+    this.handleViewsChange = this.handleViewsChange.bind(this);
   }
 
   handleResize() {
@@ -51,45 +40,46 @@ export default class App extends React.Component {
     }));
   }
 
-  handleUserBuildModel(model, currentCode) {
-    this.setState(() => ({ model, currentCode }));
-  }
 
-  handleHeaderChange(appConfig) {
-    this.setState(() => ({ appConfig }));
-  }
-
-  handleViewsChange(viewsConfig){
+  handleViewsChange(viewsConfig) {
     this.setState(() => ({ viewsConfig }));
   }
 
   render() {
-    const editor = this.state.appConfig.editor ? (
+    const model = this.props.model.model;
+    const editor = this.props.config.editor ? (
       <Console
         height={this.state.height}
-        model={this.state.model}
-        code={this.state.currentCode}
-        onBuild={this.handleUserBuildModel}
       />
     ) : null;
 
     return (
       <div style={AppStyle}>
-        <Header config={this.state.appConfig} onChange={this.handleHeaderChange} />
+        <Header />
         <div style={ContentStyle}>
           {editor}
           <ViewsWrapper
-            model={this.state.model}
+            model={model}
             width={this.state.width}
             height={this.state.height}
-            numViews={this.state.appConfig.views}
-            config={this.state.appConfig}
             views={this.state.viewsConfig}
             onChange={this.handleViewsChange}
           />
-          <Sidebar model={this.state.model} />
+          <Sidebar model={model} />
         </div>
       </div>
     );
   }
 }
+
+const mapStateToProps = state => {
+  return {
+    config: state.ViewsWrapperConfig,
+    model: state.Model
+  }
+};
+
+
+export default connect(
+  mapStateToProps
+)(App);

@@ -30,7 +30,6 @@ class Curve {
   }
 
   getParams() {
-    console.log(this.y[0]);
     return this.y[0].getParams();
   }
 

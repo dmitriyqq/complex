@@ -318,9 +318,7 @@ export class Parser {
   eval(stringExpression) {
     try {
       let tokens = this.tokenize(stringExpression);
-      console.log(tokens);
       let root = this.buildTree(tokens);
-      console.log(JSON.stringify(root));
       return new Formula(root, stringExpression);
     } catch (err) {
       console.log(err);

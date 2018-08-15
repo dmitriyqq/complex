@@ -2,7 +2,6 @@ import * as THREE from "three";
 
 export default class TrackCam {
   constructor(width, height, type) {
-
     this.cameraT = -Math.PI / 2;
     this.cameraA = 2;
     this.cameraR = 60; // DISTANCE
@@ -29,59 +28,45 @@ export default class TrackCam {
   }
 
   setup(mount) {
-    console.log(mount);
     this.mount = mount;
 
     this.rotating = false;
 
-    this.mount.addEventListener(
-      "mouseup",
-      e => {
-        this.rotating = false;
-      }
-    );
+    this.mount.addEventListener("mouseup", () => {
+      this.rotating = false;
+    });
 
-    this.mount.addEventListener(
-      "mousedown",
-      e => {
-        this.rotating = true;
-        this.lastMouse = { x: e.clientX, y: e.clientY };
-      }
-    );
+    this.mount.addEventListener("mousedown", e => {
+      this.rotating = true;
+      this.lastMouse = { x: e.clientX, y: e.clientY };
+    });
 
-    this.mount.addEventListener(
-      "mousemove",
-      e => {
-        e.preventDefault();
-        const dx = e.clientX - this.lastMouse.x;
-        const dy = e.clientY - this.lastMouse.y;
-        // console.log(dx, dy);
-        if (this.rotating) {
-          if (Math.abs(dx) > Math.abs(dy)) {
-            this.cameraT -= 0.01 * dx;
-          } else {
-            this.cameraA += 0.01 * dy;
-            if (this.cameraA > Math.PI / 2) this.cameraA = Math.PI / 2;
-            else if (this.cameraA < -Math.PI / 2) this.cameraA = -Math.PI / 2;
-          }
-          this.update();
+    this.mount.addEventListener("mousemove", e => {
+      e.preventDefault();
+      const dx = e.clientX - this.lastMouse.x;
+      const dy = e.clientY - this.lastMouse.y;
+      // console.log(dx, dy);
+      if (this.rotating) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          this.cameraT -= 0.01 * dx;
+        } else {
+          this.cameraA += 0.01 * dy;
+          if (this.cameraA > Math.PI / 2) this.cameraA = Math.PI / 2;
+          else if (this.cameraA < -Math.PI / 2) this.cameraA = -Math.PI / 2;
         }
-        this.lastMouse = { x: e.clientX, y: e.clientY };
-      }
-    );
-
-    this.mount.addEventListener(
-      "mousewheel",
-      e => {
-        e.preventDefault();
-        this.cameraR += e.deltaY * 0.05;
         this.update();
       }
-    );
+      this.lastMouse = { x: e.clientX, y: e.clientY };
+    });
+
+    this.mount.addEventListener("mousewheel", e => {
+      this.cameraR += e.deltaY * 0.05;
+      this.update();
+    }, {passive: true});
   }
 
   update() {
-    console.log("updating camera");
+    // console.log("updating camera");
 
     if (this.camera.type == "Ortho") {
       const r = 1000 / this.cameraR;
@@ -102,10 +87,7 @@ export default class TrackCam {
     );
 
     this.camera.lookAt(0, 0, 0);
-
-    if (this.subscribers) 
-      for (let sub of this.subscribers) 
-        sub();
+    if (this.subscribers) for (let sub of this.subscribers) sub();
   }
 
   addSubscriber(subscriber) {

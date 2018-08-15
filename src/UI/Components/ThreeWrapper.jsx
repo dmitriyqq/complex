@@ -25,7 +25,7 @@ export default class ThreeWrapper extends React.Component {
     this.scene.background = new THREE.Color(0.7, 0.7, 0.7);
   }
 
-  componentDidMount(){
+  componentDidMount() {
     let mount = this.canvasPlaceholder.current;
     this.camera.setup(mount);
     mount.appendChild(this.renderer.domElement);
@@ -36,16 +36,28 @@ export default class ThreeWrapper extends React.Component {
     this.camera.setup(mount);
   }
 
+  componentWillUnmount(){
+    this.props.program.clean();
+    delete this.props.program;
+    delete this.renderer;
+    delete this.scene;
+  }
+
   render() {
-    console.log("rendering ");
+    // console.log("rendering ");
 
-    if(!this.props.camera){
-      this.camera = new TrackCam(this.props.width, this.props.height, this.props.camType);
-    }else this.camera = this.props.camera;
+    if (!this.props.camera) {
+      this.camera = new TrackCam(
+        this.props.width,
+        this.props.height,
+        this.props.camType
+      );
+    } else this.camera = this.props.camera;
 
-    console.log(this.camera);
+    // console.log(this.camera);
 
     this.camera.addSubscriber(() => {
+      //this.program.update(this.camera.camera);
       this.renderer.render(this.scene, this.camera.camera);
     });
 
@@ -54,7 +66,7 @@ export default class ThreeWrapper extends React.Component {
     this.props.program.render();
     this.camera.update(this.renderer, this.scene);
 
-    console.log(this.camera.camera.aspect);
+    //console.log(this.camera.camera.aspect);
     return <div style={ViewBoxStyle(this)} ref={this.canvasPlaceholder} />;
   }
 }

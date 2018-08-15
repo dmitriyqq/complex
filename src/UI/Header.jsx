@@ -1,6 +1,7 @@
 import React from "react";
-
-import { ViewConstants } from "Root/Constants";
+import { connect } from "react-redux";
+import { ViewConstants, Action } from "Root/Constants";
+import { Change, Toggle } from "Redux/Actions";
 
 const HeaderStyle = {
   display: "flex",
@@ -9,7 +10,8 @@ const HeaderStyle = {
   backgroundColor: "#333",
   width: "100%",
   color: "white",
-  height: ViewConstants.HEADER_HEIGHT
+  height: ViewConstants.HEADER_HEIGHT,
+  border: "1px border gray"
 };
 
 const LogoStyle = {
@@ -21,34 +23,25 @@ const Margin = {
   margin: "0px 10px 0px 10px"
 };
 
-export default class Header extends React.Component {
+class Header extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      editor: true,
-      views: "4",
-      singleCam: false,
-    }
-
-    if(this.props.config){
-      this.state = this.props.config;
-    }
-
-    this.handleConsole = this.handleConsole.bind(this);
-    this.handleScreenValue = this.handleScreenValue.bind(this);
-    this.handleSingleCam = this.handleSingleCam.bind(this);
-    this.handleCamType = this.handleCamType.bind(this);
   }
 
   render() {
     return (
       <div style={HeaderStyle}>
         <div style={LogoStyle}>Complex</div>
-        <button style={Margin} onClick={this.handleConsole}>Editor</button>
+        <button style={Margin} onClick={this.props.handleConsole}>
+          Editor
+        </button>
         <div style={Margin}>
           <label htmlFor="screensValue">Views:</label>
-          <select name="screensValue" value={this.state.views} onChange={this.handleScreenValue}>
+          <select
+            name="screensValue"
+            value={this.props.config.views}
+            onChange={this.props.handleScreenValue}
+          >
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="4">4</option>
@@ -56,37 +49,55 @@ export default class Header extends React.Component {
         </div>
         <div style={Margin}>
           <label htmlFor="singleCam">SingleCam:</label>
-          <input type="checkbox" name="singleCam" checked={this.state.singleCam} onClick={this.handleSingleCam}/>
+          <input
+            type="checkbox"
+            name="singleCam"
+            checked={this.props.config.singleCam}
+            onClick={this.props.handleSingleCam}
+          />
         </div>
-        <button style={Margin} onClick={this.handleCamType}>{this.state.camType}</button>
+        <div style={Margin}>
+          <label htmlFor="camType">Camera:</label>
+          <select
+            name="camType"
+            value={this.props.config.camType}
+            onChange={this.props.handleCamType}
+          >
+            <option value="Ortho">Ortho</option>
+            <option value="Perspective">Perspective</option>
+          </select>
+        </div>
       </div>
     );
   }
-
-  handleConsole(){
-    this.state.editor = !this.state.editor;
-    if (this.props.onChange)
-      this.props.onChange(this.state)
-  }
-
-  handleScreenValue(e){
-    this.state.views = e.target.value;
-    if (this.props.onChange)
-      this.props.onChange(this.state)
-  }
-
-  handleSingleCam(){
-    this.state.singleCam = !this.state.singleCam;
-    if (this.props.onChange)
-      this.props.onChange(this.state)
-  }
-
-  handleCamType(){
-    this.state.camType = this.state.camType === "Perspective" ? "Ortho" : "Perspective";
-
-    if (this.props.onChange)
-      this.props.onChange(this.state)
-  }
-
-
 }
+
+const mapStateToProps = state => {
+  return {
+    config: state.ViewsWrapperConfig
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    handleConsole: () => {
+      dispatch(Toggle(Action.VIEW_WRAPPER_CHANGED, "editor"));
+    }, //this.handleConsole.bind(this);
+    handleScreenValue: e => {
+      dispatch(
+        Change(Action.VIEW_WRAPPER_CHANGED, { views: e.target.value })
+      );
+    }, //= this.handleScreenValue.bind(this);
+    handleSingleCam: () => {
+      dispatch(Toggle(Action.VIEW_WRAPPER_CHANGED, "singleCam"));
+    }, // = this.handleSingleCam.bind(this);
+    handleCamType: e => {
+      dispatch(Change(Action.VIEW_WRAPPER_CHANGED,  { camType: e.target.value }));
+    }
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Header);
