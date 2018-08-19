@@ -30,7 +30,6 @@ const ContentStyle = {
     };
 
     window.onresize = this.handleResize.bind(this);
-    this.handleViewsChange = this.handleViewsChange.bind(this);
   }
 
   handleResize() {
@@ -40,14 +39,9 @@ const ContentStyle = {
     }));
   }
 
-
-  handleViewsChange(viewsConfig) {
-    this.setState(() => ({ viewsConfig }));
-  }
-
   render() {
     const model = this.props.model.model;
-    const editor = this.props.config.editor ? (
+    const editor = this.props.editor.editor ? (
       <Console
         height={this.state.height}
       />
@@ -62,8 +56,6 @@ const ContentStyle = {
             model={model}
             width={this.state.width}
             height={this.state.height}
-            views={this.state.viewsConfig}
-            onChange={this.handleViewsChange}
           />
           <Sidebar model={model} />
         </div>
@@ -74,8 +66,8 @@ const ContentStyle = {
 
 const mapStateToProps = state => {
   return {
-    config: state.ViewsWrapperConfig,
-    model: state.Model
+    model: state.Model,
+    editor: state.Editor
   }
 };
 

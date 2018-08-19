@@ -113,7 +113,8 @@ class ViewsWrapper extends React.Component {
       this.camera = new TrackCam(
         res.width,
         res.height,
-        this.props.config.camType
+        this.props.config.camType,
+        'global'
       );
       let mount = this.globCamera.current;
       this.camera.setup(mount);

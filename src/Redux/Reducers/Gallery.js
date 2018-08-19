@@ -1,24 +1,29 @@
-import {Action} from "Root/Constants"
+import { Action } from "Root/Constants";
 
-const DEFAULT_STATE = [
-    {
-        img: "",
-        name: "",
-        code: "hello world"
-    }
-]
+const DEFAULT_STATE = [];
 
 export default (state = DEFAULT_STATE, action) => {
-    let newStories;
-    if(action.type === Action.ADD_STORY){
-        newStories = [...state, action.story];
-    }else if(action.type === Action.REMOVE_STORY){
-        newStories = state.filter(story => story.id != action.id);
-    }else if(action.type === Action.UPDATE_STORY){
-        newStories = state.map(story => story.id == action.id ? action.story : story);
+  let newSketches;
+  const sketch = action.sketch;
+  if (action.type === "@@INIT") {
+    const sketches = localStorage.getItem("gallery");
+    if (sketches) {
+      return JSON.parse(sketches);
+    } else {
+      return DEFAULT_STATE;
     }
-    else return state;
+  } else if (action.type === Action.ADD_SKETCH) {
+    if (state.find(s => s.sketchName === sketch.sketchName)) {
+      newSketches = state.map(
+        s => (s.sketchName === sketch.sketchName ? sketch : s)
+      );
+    } else {
+      newSketches = state.concat([sketch]);
+    }
+  } else if (action.type === Action.REMOVE_SKETCH) {
+    newSketches = state.filter(sketch => sketch.sketchName != action.sketchName);
+  } else return state;
 
-    localStorage.setItem("stories", JSON.stringify(newStories));
-    return newStories;
-}
+  localStorage.setItem("gallery", JSON.stringify(newSketches));
+  return newSketches;
+};

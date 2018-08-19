@@ -20,10 +20,10 @@ class Parameter extends React.Component {
 
   render() {
     return (
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end"}}>
         <div>{this.props.label + ":"}</div>
         <input
-          style={{ marginLeft: "5px", width: "50px" }}
+          style={{ marginLeft: "5px", width: "50px", height: "20px"}}
           type="text"
           value={this.state.value}
           onChange={this.handleChange.bind(this)}
@@ -37,8 +37,7 @@ const ProjectionPositionStyle = {
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
-  flexWrap: "wrap",
-  maxHeight: "80px"
+  flexWrap: "wrap"
 };
 
 const CardStyle = {

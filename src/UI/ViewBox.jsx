@@ -1,7 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
 
-
 import CubicProgram from "ThreePrograms/CubicProgram";
 import PolygonProgram from "ThreePrograms/PolygonProgram";
 import ThreeWrapper from "Components/ThreeWrapper";
@@ -135,14 +134,15 @@ class ViewBox extends React.Component {
 
     const config = this.props.model.projConfigs[this.props.i] || defaultConfig;
     const model = this.props.model.model;
+    let program;
 
     if (config.renderMethod == "Cubes") {
-      this.program = new CubicProgram(
+      program = new CubicProgram(
         model,
         config.mappings
       );
     } else {
-      this.program = new PolygonProgram(
+      program = new PolygonProgram(
         model,
         config.mappings
       );
@@ -154,9 +154,10 @@ class ViewBox extends React.Component {
         <ThreeWrapper
           camType={this.props.camType}
           camera={this.props.camera}
-          program={this.program}
+          program={program}
           width={this.props.config.width}
           height={this.props.config.height}
+          i={this.props.i}
         />
       </div>
     );

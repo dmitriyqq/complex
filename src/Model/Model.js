@@ -140,6 +140,8 @@ export default class Model {
         );
         rastrData.curve = curveIndex;
         rastrData.formula = data.formula;
+        rastrData.i = data.i;
+        rastrData.j = data.j
         this.data.add(rastrData);
       } else {
         //console.log('not in bounds');

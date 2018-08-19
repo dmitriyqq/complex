@@ -26,6 +26,20 @@ const Margin = {
 class Header extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+      sketchName: this.props.config.sketchName
+    };
+
+    this.wrapperSketchNameChange = this.wrapperSketchNameChange.bind(this);
+    this.handleSketchNameInput = this.handleSketchNameInput.bind(this);
+  }
+
+  handleSketchNameInput(e) {
+    this.setState({ sketchName: e.target.value });
+  }
+
+  wrapperSketchNameChange() {
+    this.props.handleSketchNameChange(this.state.sketchName);
   }
 
   render() {
@@ -67,6 +81,15 @@ class Header extends React.Component {
             <option value="Perspective">Perspective</option>
           </select>
         </div>
+        <div style={Margin}>
+          <input
+            type="text"
+            placeholder="Sketch Name"
+            value={this.state.sketchName}
+            onChange={this.handleSketchNameInput}
+          />
+          <button onClick={this.wrapperSketchNameChange}>Change</button>
+        </div>
       </div>
     );
   }
@@ -81,18 +104,21 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     handleConsole: () => {
-      dispatch(Toggle(Action.VIEW_WRAPPER_CHANGED, "editor"));
-    }, //this.handleConsole.bind(this);
+      dispatch(Toggle(Action.UPDATE_EDITOR, "editor"));
+    }, 
     handleScreenValue: e => {
-      dispatch(
-        Change(Action.VIEW_WRAPPER_CHANGED, { views: e.target.value })
-      );
-    }, //= this.handleScreenValue.bind(this);
+      dispatch(Change(Action.VIEW_WRAPPER_CHANGED, { views: e.target.value }));
+    }, 
     handleSingleCam: () => {
       dispatch(Toggle(Action.VIEW_WRAPPER_CHANGED, "singleCam"));
-    }, // = this.handleSingleCam.bind(this);
+    },
     handleCamType: e => {
-      dispatch(Change(Action.VIEW_WRAPPER_CHANGED,  { camType: e.target.value }));
+      dispatch(
+        Change(Action.VIEW_WRAPPER_CHANGED, { camType: e.target.value })
+      );
+    },
+    handleSketchNameChange: sketchName => {
+      dispatch(Change(Action.VIEW_WRAPPER_CHANGED, { sketchName }));
     }
   };
 };

@@ -1,4 +1,7 @@
 import React from "react";
+import { connect } from "react-redux";
+
+import { Action } from "Root/Constants";
 import TrackCam from "Lib/TrackCam";
 import * as THREE from "three";
 
@@ -9,64 +12,116 @@ const ViewBoxStyle = ViewBox => {
   };
 };
 
-export default class ThreeWrapper extends React.Component {
+class ThreeWrapper extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {};
+    
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
-
     this.renderer.shadowMap.enabled = true;
+    this.renderer.setSize(this.props.width, this.props.height);
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-    this.scene = new THREE.Scene();
-
     this.canvasPlaceholder = React.createRef();
-
-    this.scene.background = new THREE.Color(0.7, 0.7, 0.7);
   }
 
   componentDidMount() {
-    let mount = this.canvasPlaceholder.current;
-    this.camera.setup(mount);
+    const mount = this.canvasPlaceholder.current;
     mount.appendChild(this.renderer.domElement);
+    this.setState();
   }
 
-  componentDidUpdate() {
-    let mount = this.canvasPlaceholder.current;
-    this.camera.setup(mount);
+  clearScene(){
+    if(!this.scene)
+      return;
+    // TODO fix memory leak
+    console.log("clearing");
+    if(this.scene){
+      const scene = this.scene;
+      for ( let i = scene.children.length - 1; i >= 0 ; i-- ) {
+        const obj = scene.children[i];
+
+        if(obj.geometry){
+          obj.geometry.dispose();
+        }
+        if(obj.material){
+          obj.material.dispose();
+        }
+        if(obj.texture){
+          obj.texture.dispose();
+        }
+        scene.remove(obj);
+        delete scene.children[i];
+      }
+    }
+
+    delete this.scene
   }
 
-  componentWillUnmount(){
-    this.props.program.clean();
-    delete this.props.program;
-    delete this.renderer;
-    delete this.scene;
+  updateImage(renderer) {
+    this.props.updateImage(renderer.domElement.toDataURL());
   }
 
   render() {
-    // console.log("rendering ");
+    this.clearScene()
 
+    const placeHolder = (
+      <div style={ViewBoxStyle(this)} ref={this.canvasPlaceholder} />
+    );
+
+    const mount = this.canvasPlaceholder.current;
+
+
+    if (!mount) return placeHolder;
+
+    let camera;
     if (!this.props.camera) {
-      this.camera = new TrackCam(
+      camera = new TrackCam(
         this.props.width,
         this.props.height,
-        this.props.camType
+        this.props.camType,
+        this.props.i
       );
-    } else this.camera = this.props.camera;
+    } else camera = this.props.camera;
 
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0.8, 0.8, 0.8);
+
+    camera.setup(mount);
+
+    // console.log("rendering ");
+    // this.clear();
     // console.log(this.camera);
 
-    this.camera.addSubscriber(() => {
+    camera.addSubscriber(() => {
       //this.program.update(this.camera.camera);
-      this.renderer.render(this.scene, this.camera.camera);
+      this.renderer.render(scene, camera.camera);
+      this.props.program.update();
     });
 
     this.renderer.setSize(this.props.width, this.props.height);
-    this.props.program.setup(this.renderer, this.scene, this.camera.camera);
+    this.props.program.setup(this.renderer, scene, camera.camera);
     this.props.program.render();
-    this.camera.update(this.renderer, this.scene);
+    camera.update(this.renderer, scene);
 
+    this.updateImage(this.renderer);
+    this.scene = scene
     //console.log(this.camera.camera.aspect);
-    return <div style={ViewBoxStyle(this)} ref={this.canvasPlaceholder} />;
+    return placeHolder;
   }
 }
+
+const mapStateToProps = () => ({});
+
+const mapDispatchToProps = dispatch => ({
+  updateImage: img =>
+    dispatch({
+      type: Action.UPDATE_IMAGE,
+      image: img
+    })
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ThreeWrapper);

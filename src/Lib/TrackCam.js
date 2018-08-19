@@ -1,12 +1,17 @@
 import * as THREE from "three";
 
+import store from "Redux/store";
+
+import { Action } from "Root/Constants";
+
 export default class TrackCam {
-  constructor(width, height, type) {
+  constructor(width, height, type, id) {
     this.cameraT = -Math.PI / 2;
     this.cameraA = 2;
     this.cameraR = 60; // DISTANCE
     this.lastMouse = { x: 0, y: 0 };
 
+    this.id = id;
     this.width = width;
     this.height = height;
     this.type = type;
@@ -25,6 +30,12 @@ export default class TrackCam {
     }
 
     this.renderers = [];
+    let conf = store.getState().Cams[this.id];
+    if (conf) {
+      this.cameraT = conf.cameraT;
+      this.cameraA = conf.cameraA;
+      this.cameraR = conf.cameraR;
+    }
   }
 
   setup(mount) {
@@ -34,6 +45,15 @@ export default class TrackCam {
 
     this.mount.addEventListener("mouseup", () => {
       this.rotating = false;
+        store.dispatch({
+          type: Action.UPDATE_CAMERA,
+          id: this.id,
+          config: {
+            cameraT: this.cameraT,
+            cameraA: this.cameraA,
+            cameraR: this.cameraR
+          }
+        });
     });
 
     this.mount.addEventListener("mousedown", e => {
@@ -59,10 +79,14 @@ export default class TrackCam {
       this.lastMouse = { x: e.clientX, y: e.clientY };
     });
 
-    this.mount.addEventListener("mousewheel", e => {
-      this.cameraR += e.deltaY * 0.05;
-      this.update();
-    }, {passive: true});
+    this.mount.addEventListener(
+      "mousewheel",
+      e => {
+        this.cameraR += e.deltaY * 0.05;
+        this.update();
+      },
+      { passive: true }
+    );
   }
 
   update() {

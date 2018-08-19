@@ -33,9 +33,7 @@ function buildModel(code, params) {
 export default (state = DEFAULT_STATE, action) => {
   if (action.type === Action.BUILD_CODE) {
     const params = state.model.exportParams();
-    console.log(state.model);
     delete state.model.data;
-    console.log(state.model)
     return {
       ...state,
       model: buildModel(action.code, params),
@@ -61,7 +59,11 @@ export default (state = DEFAULT_STATE, action) => {
       model: newModel
     };
   } else if (action.type === Action.CLEAR_MODEL) {
-    return DEFAULT_STATE;
+    return  {
+      model: new Model(),
+      code: DEFAULT_CODE,
+      projConfigs: []
+    };
   } else if (action.type === Action.PROJECTION_CONFIG_UPDATE) {
     let projConfigs = [];
     for (let i = 0; i < state.projConfigs.length; i++) {
@@ -69,6 +71,13 @@ export default (state = DEFAULT_STATE, action) => {
     }
     projConfigs[action.id] = action.config;
     return { ...state, projConfigs };
+  } else if(action.type === Action.LOAD_SKETCH){
+    console.log(action);
+    return {
+        model: buildModel(action.sketch.code, action.sketch.params),
+        projConfigs: action.sketch.projConfigs,
+        code: action.sketch.code,
+    };
   }
   return state;
 };

@@ -2,7 +2,7 @@ import Complex from "Lib/Complex";
 import { Parser } from "Lib/Parser";
 
 let GlobalParser = new Parser();
-window.globalParser = GlobalParser;
+
 class Curve {
   constructor(formula, params) {
     this.color = {
@@ -102,3 +102,61 @@ const Curves = [
 ];
 
 export default Curves;
+
+export class UCurve {
+  constructor(formula, params) {
+    this.color = {
+      r: Math.round(255 * Math.random()),
+      g: Math.round(255 * Math.random()),
+      b: Math.round(255 * Math.random())
+    };
+
+    this.formula = "x*x + y*y = r*r";
+
+    const need_params = this.formula.getParamNames();
+    for (let param of need_params) {
+      for (let func of this.y) {
+        func.setVariable(param, new Complex(0, 0));
+      }
+    }
+    if (params)
+      for (let param of params) {
+        this.setParam(param.label, param.value);
+      }
+  }
+
+  getParamNames() {
+    return this.formula.getParamNames();
+  }
+
+  getParams() {
+    return this.formula.getParams();
+  }
+
+  getParam(paramName) {
+    return this.formula.getParam(paramName);
+  }
+
+  setParam(paramName, value) {
+    this.formula.setVariable(paramName, value);
+  }
+
+  getData(model) {
+    let data = [];
+
+    for (let i = 0; i < model.matrixSize; i++) {
+      for (let j = 0; j < model.matrixSize; j++) {
+        const xr = model.start.xr + model.step * i + model.step / 2;
+        const xi = model.start.xi + model.step * j + model.step / 2;
+        let formulaIndex = 0;
+        for (let formula of this.y) {
+          formula.setVariable("x", new Complex(xr, xi));
+          const y = formula.calc();
+          data.push({ i, j, xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++ });
+        }
+      }
+    }
+
+    return data;
+  }
+}

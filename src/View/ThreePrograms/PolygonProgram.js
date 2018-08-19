@@ -8,28 +8,17 @@ export default class PolygonPrograms extends CubicProgram {
     super(model, mappings);
   }
 
-  clean(){
-    delete this.projection;
-    delete this.data;
-  }
-
   render() {
-    console.log("projecting ");
-    this.projection = new Projection3D(this.model, 1, this.mappings);
-    console.log("total model data = " + this.model.data.size);
-    this.data = this.projection.projData;
-    console.log("total data for geometry = " + this.data.size);
+    const projection = new Projection3D(this.model, 1, this.mappings);
+    const data = projection.projData;
 
     this.cellSize = 1;
     this.totalSize = this.cellSize * this.model.matrixSize;
 
     // remove all objects
-    console.log("scene = " + this.scene);
     while (this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
     }
-
-    console.log("program setup");
 
     const materialsMap = new Map();
     let defaultMaterial = new THREE.MeshLambertMaterial({
@@ -37,7 +26,7 @@ export default class PolygonPrograms extends CubicProgram {
       side: THREE.DoubleSide
       //wireframe: true
     });
-    
+
     const getMatrerial = color => {
       let existing = materialsMap.get(color);
 
@@ -52,16 +41,15 @@ export default class PolygonPrograms extends CubicProgram {
         return material;
       }
     };
-    
+
     let chunks = new Map();
-    console.log(this.data);
-    for (let data of this.data) {
-      const index = "c" + data.curve + "f" + data.formula;
+    for (let d of data) {
+      const index = "c" + d.curve + "f" + d.formula;
       let chunk = chunks.get(index);
       if (!chunk) {
         chunks.set(index, []);
       }
-      chunks.get(index).push(data);
+      chunks.get(index).push(d);
     }
     console.log(chunks);
 
@@ -115,31 +103,33 @@ export default class PolygonPrograms extends CubicProgram {
           }
         }
       }
-      console.log(chunk);
-      // console.log(grid);
+
       geometry.computeFaceNormals();
       geometry.computeVertexNormals();
-      let material;
-      for(let c of this.model.curves){
-        if(c.index === chunk[0].curve)
-           material = getMatrerial(c.color);
-      };
-
-
       
+      let material;
+      for (let c of this.model.curves) {
+        if (c.index === chunk[0].curve) material = getMatrerial(c.color);
+      }
+
       let mesh = new THREE.Mesh(geometry, material);
       this.addGrid();
       this.scene.add(mesh);
     }
 
-    this.light = new THREE.DirectionalLight(0xff00ff, 0.7);
     this.glight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 0.3);
-    console.log(this.camera.position)
-    this.light.position.set(this.camera.position).normalize();
+
+    this.light = new THREE.DirectionalLight(0xffffff, 0.7);
+    this.light.position.set(1, 0, 0).normalize();
     this.light.castShadow = true;
     this.scene.add(this.light);
     this.scene.add(this.glight);
 
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  update() {
+    this.light.position.copy(this.camera.position);
     this.renderer.render(this.scene, this.camera);
   }
 

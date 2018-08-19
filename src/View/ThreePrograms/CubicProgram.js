@@ -5,11 +5,14 @@ import Projection3D from "Model/Projection3D";
 export default class TestThreeProgram {
   constructor(model, mappings) {
     this.model = model;
+    if(!this.model.programs)
+      this.model.programs = [];
+    this.model.programs.push(this);
     // this.model.subscribe(this.render.bind(this));
     this.mappings = mappings;
     this.needGrid = true;
     this.needAxies = true;
-
+    this.meshes = [];
     this.gridMaterial = new THREE.LineBasicMaterial({
       color: 0xaaaaaa,
     });
@@ -31,11 +34,6 @@ export default class TestThreeProgram {
   }
 
   generateMesh() {}
-
-  clean(){
-    delete this.projection;
-    delete this.data;
-  }
 
   render() {
     // console.log("projecting ");
@@ -80,9 +78,10 @@ export default class TestThreeProgram {
       const y = -this.totalSize / 2 + (box.y + 1 / 2) * this.cellSize;
       const z = -this.totalSize / 2 + (box.z + 1 / 2) * this.cellSize;
 
-      let mat = getMatrerial(box.color);
+      const mat = getMatrerial(box.color);
       // console.log(mat);
-      let mesh = new THREE.Mesh(geometry, mat);
+      const mesh = new THREE.Mesh(geometry, mat);
+      this.meshes.push(mesh)
       mesh.position.set(x, y, z);
       this.scene.add(mesh);
     }
@@ -96,6 +95,13 @@ export default class TestThreeProgram {
 
     this.addGrid();
     this.renderer.render(this.scene, this.camera);
+    return this.meshes;
+  }
+
+  clean(){
+    for(let mesh of this.meshes){
+        mesh.dispose();
+    }
   }
 
   setup(renderer, scene, camera) {
@@ -162,5 +168,9 @@ export default class TestThreeProgram {
     this.scene.add(new THREE.LineSegments(xAxiesGeometry, this.xAxiesMaterial));
     this.scene.add(new THREE.LineSegments(yAxiesGeometry, this.yAxiesMaterial));
     this.scene.add(new THREE.LineSegments(zAxiesGeometry, this.zAxiesMaterial));
+  }
+
+  update(){
+    // 
   }
 }
