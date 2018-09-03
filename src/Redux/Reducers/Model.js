@@ -14,17 +14,10 @@ const DEFAULT_STATE = {
 
 function buildModel(code, params) {
   try {
-    console.log('build new model');
+    console.log("build new model");
     const userFunction = eval(code);
-    const newModel = userFunction(
-      Model,
-      Curves,
-      Complex,
-      Parser,
-      Formula,
-      params
-    );
-    return newModel;
+    const exp = userFunction(Model, Curves, Complex, Parser, Formula, params);
+    return exp.model;
   } catch (err) {
     console.log(err);
   }
@@ -59,7 +52,7 @@ export default (state = DEFAULT_STATE, action) => {
       model: newModel
     };
   } else if (action.type === Action.CLEAR_MODEL) {
-    return  {
+    return {
       model: new Model(),
       code: DEFAULT_CODE,
       projConfigs: []
@@ -71,12 +64,12 @@ export default (state = DEFAULT_STATE, action) => {
     }
     projConfigs[action.id] = action.config;
     return { ...state, projConfigs };
-  } else if(action.type === Action.LOAD_SKETCH){
+  } else if (action.type === Action.LOAD_SKETCH) {
     console.log(action);
     return {
-        model: buildModel(action.sketch.code, action.sketch.params),
-        projConfigs: action.sketch.projConfigs,
-        code: action.sketch.code,
+      model: buildModel(action.sketch.code, action.sketch.params),
+      projConfigs: action.sketch.projConfigs,
+      code: action.sketch.code
     };
   }
   return state;

@@ -14,7 +14,6 @@ const ViewsWrapperStyle = ViewBox => {
 
 class ViewsWrapper extends React.Component {
   constructor(props) {
-    console.log("constructing viewbox wrapper");
     super(props);
 
     this.globCamera = React.createRef();

@@ -18,12 +18,12 @@ export default class TrackCam {
 
     if (this.type == "Ortho") {
       this.camera = new THREE.OrthographicCamera(
-        width / -16,
-        width / 16,
-        height / 16,
-        height / -16,
+        width / -2,
+        width / 2,
+        height / 2,
+        height / -2,
         1,
-        1000
+        2000
       );
     } else {
       this.camera = new THREE.PerspectiveCamera(75, width / height, 1, 2000);
@@ -36,6 +36,7 @@ export default class TrackCam {
       this.cameraA = conf.cameraA;
       this.cameraR = conf.cameraR;
     }
+    this.update();
   }
 
   setup(mount) {
@@ -90,18 +91,9 @@ export default class TrackCam {
   }
 
   update() {
-    // console.log("updating camera");
-
-    if (this.camera.type == "Ortho") {
-      const r = 1000 / this.cameraR;
-      this.camera = new THREE.OrthographicCamera(
-        this.width / -r,
-        this.width / r,
-        this.height / r,
-        this.height / -r,
-        1,
-        1000
-      );
+    if(this.type == "Ortho"){
+      this.camera.zoom = 500 / this.cameraR;
+      this.camera.updateProjectionMatrix();
     }
 
     this.camera.position.set(
@@ -111,11 +103,20 @@ export default class TrackCam {
     );
 
     this.camera.lookAt(0, 0, 0);
+
     if (this.subscribers) for (let sub of this.subscribers) sub();
   }
 
   addSubscriber(subscriber) {
     if (!this.subscribers) this.subscribers = [];
     this.subscribers.push(subscriber);
+  }
+
+  dispose(){
+    console.log('disposing camera');
+    this.mount.removeEventListener("mouseup", () => {console.log("cleared")});
+    this.mount.removeEventListener("mousemove", () => {console.log("cleared")});
+    this.mount.removeEventListener("mousedown", () => {console.log("cleared")});
+    this.mount.removeEventListener("mousewheel", () => {console.log("cleared")});
   }
 }

@@ -4,8 +4,6 @@ import { connect } from "react-redux";
 import { Action } from "Root/Constants";
 import GalleryItem from "Components/GalleryItem";
 
-const GalleryItemStyle = {};
-
 class Gallery extends React.Component {
   render() {
     return (

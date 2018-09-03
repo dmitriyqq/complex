@@ -1,51 +1,51 @@
-export default class Projection3D {
-  constructor(model, cellSize, mappings) {
-    this.totalSize = model.matrixSize;
-    this.data = model.data;
+export function project3d(model, mappings) {
+  const totalSize = model.matrixSize;
+  const data = model.data;
 
-    // Used for color
-    this.curves = model.curves;
+  // Used for color
+  const curves = model.curves;
 
-    this.cellSize = cellSize;
+  const projData = new Set();
 
-    this.projData = new Set();
-
-    if (mappings) {
-      this.axies = mappings;
-    } else {
-      this.axies = {
-        x: { label: "xr", inverted: false },
-        y: { label: "yr", inverted: false },
-        z: { label: "xi", inverted: false }
-      };
-    }
-    this.calcData();
+  let axies;
+  if (mappings) {
+    axies = mappings;
+  } else {
+    axies = {
+      x: { label: "xr", inverted: false },
+      y: { label: "yr", inverted: false },
+      z: { label: "xi", inverted: false }
+    };
   }
 
-  calcData() {
-    for (let value of this.data) {
-      let curve;
-      for (let el of this.curves) {
-        if (el.index == value.curve) {
-          curve = el;
-        }
+  for (let value of data) {
+    let curve;
+    for (let el of curves) {
+      if (el.index == value.curve) {
+        curve = el;
       }
-      this.projData.add({
-        x:
-          value[this.axies["x"].label] * (this.axies["x"].inverted ? -1 : 1) +
-          (this.axies["x"].inverted ? Math.round(this.totalSize - 1) : 0),
-        y:
-          value[this.axies["y"].label] * (this.axies["y"].inverted ? -1 : 1) +
-          (this.axies["y"].inverted ? Math.round(this.totalSize - 1) : 0),
-        z:
-          value[this.axies["z"].label] * (this.axies["z"].inverted ? -1 : 1) +
-          (this.axies["z"].inverted ? Math.round(this.totalSize - 1) : 0),
-        curve: value.curve,
-        formula: value.formula,
-        color: curve.color
-      });
     }
+
+    projData.add({
+      x:
+        value[axies["x"].label] * (axies["x"].inverted ? -1 : 1) +
+        (axies["x"].inverted ? Math.round(totalSize - 1) : 0),
+      y:
+        value[axies["y"].label] * (axies["y"].inverted ? -1 : 1) +
+        (axies["y"].inverted ? Math.round(totalSize - 1) : 0),
+      z:
+        value[axies["z"].label] * (axies["z"].inverted ? -1 : 1) +
+        (axies["z"].inverted ? Math.round(totalSize - 1) : 0),
+      curve: value.curve,
+      formula: value.formula,
+      color: curve.color,
+      i: value.i,
+      j: value.j
+    });
   }
+
+  return projData;
+}
 
   /* Deprecated
   render(graphics) {
@@ -121,4 +121,3 @@ export default class Projection3D {
     graphics.box(5);
   }
 */
-}

@@ -17,16 +17,9 @@ export default class Model {
     // Array of functions to call, after rebuild model
     this.onRebuild = new Set();
     this.rebuild();
-    /*
-    this.addCurve(
-      new Circle([
-        { label: "x0", value: new Complex(0, 0) },
-        { label: "y0", value: new Complex(0, 0) },
-        { label: "r",  value: new Complex(1, 0) }
-      ])
-    );
-    */
+
   }
+
   exportParams(){
     return {
       center: this.center,
@@ -69,28 +62,10 @@ export default class Model {
     this.onRebuild.delete(callback);
   }
 
-  backupCurves() {
-    // !TODO save state to local storage
-    // console.log();
-    // window.localStorage.setItem("curves", JSON.stringify([...this.curves]));
-    // let curves = window.localStorage.getItem("curves");
-    // console.log("backuping curves");
-  }
-    // console.log(curves);
-
-  tryLoadLocalStorage() {
-    // !TODO load state from local storage
-    let curves = window.localStorage.getItem("curves");
-    if (JSON.parse(curves).entries) {
-      this.curves = new Map(JSON.parse(curves));
-    }
-  }
-
   addCurve(curve) {
     curve.index = this.curves.size;
     this.curves.add(curve);
     this.renderCurve(curve);
-    this.backupCurves();
     this.rebuild();
   }
 
@@ -108,10 +83,8 @@ export default class Model {
   }
 
   cleanCurves() {
-    // TODO fix this
-    // workaround
-    window.location.reload();
-    // this.curves.clear();
+    this.curves.clear();
+    this.rebuild();
   }
 
   renderCurve(curve) {
@@ -122,12 +95,16 @@ export default class Model {
 
   addData(data, curveIndex) {
     if (!(data instanceof Array)) {
-      let inBoundaries = true;
-      LABELS.map(
-        label =>
-          (inBoundaries &=
-            data[label] >= this.start[label] && data[label] <= this.end[label])
-      );
+
+
+      // check if point in y-boundaties
+      // i think this is not necessary
+      // let inBoundaries = true;
+      // LABELS.map(
+      //   label =>
+      //     (inBoundaries &=
+      //       data[label] >= this.start[label] && data[label] <= this.end[label])
+      // );
 
       //console.log(inBoundaries);
       if (1) {

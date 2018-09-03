@@ -5,17 +5,33 @@ export const ViewConstants = {
   CONSOLE_WIDTH: 500
 };
 
-export const DEFAULT_CODE = `(Model, Curves, Complex, Parser, Formula, params) => {
-      let model = new Model(params);
+export const DEFAULT_CODE =
+ `/**********************************************************
+  * THIS IS CODE SAMPLE. YOU COULD TRY YOU OWN            *
+  * CURVES OR LOAD SOME FROM GALLERY                      *
+  *********************************************************/
+  (Model, Curves, Complex, Parser, Formula, params) => {
+      const model = new Model();
       model.addCurve(
-        new Curves.Circle([
-          { label: "x0", value: new Complex(0, 0) },
-          { label: "y0", value: new Complex(0, 0) },
-          { label: "r",  value: new Complex(1, 0) }
-        ])
-      );
-      return model;
-    }`;
+            new Curves.Circle([
+              { label: "x0", value: new Complex(0, 0) },
+              { label: "y0", value: new Complex(0, 0) },
+              { label: "r",  value: new Complex(1, 0) }
+            ])
+          );
+      return { model };
+    }
+`;
+
+export const CODE_HEADER =
+  `function(Curves, Complex, Parser, Formula, params, model) {
+     model.clear()
+  `
+
+export const CODE_FOOTER = `
+ }
+`
+
 
 export const Action = {
   VIEW_WRAPPER_CHANGED: "view_wrapper_changed",

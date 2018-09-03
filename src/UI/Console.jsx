@@ -25,6 +25,16 @@ class Console extends React.Component {
     this.handleCodeChange = this.handleCodeChange.bind(this);
   }
 
+  shouldComponentUpdate(nextProps) {
+    if (
+      this.props.model === nextProps.model &&
+      this.props.editor === nextProps.editor
+    ) {
+      return false;
+    }
+    return true;
+  }
+
   getStyle() {
     return {
       position: "absolute",
@@ -34,8 +44,9 @@ class Console extends React.Component {
       color: "white",
       height: this.props.height - ViewConstants.CONSOLE_CONTROLS,
       width: ViewConstants.CONSOLE_WIDTH,
-      opacity: "0.5",
-      padding: "10px 10px 10px 10px"
+      opacity: "0.75",
+      padding: "10px 10px 10px 10px",
+      overflowY: 'auto',
     };
   }
 
@@ -64,15 +75,14 @@ class Console extends React.Component {
   render() {
     let bar;
     if (this.props.editor.gallery) {
-      bar = <Gallery 
-        style={this.getStyle()}
-      />;
+      bar = <Gallery style={this.getStyle()} />;
     } else {
       bar = (
         <AceEditor
           style={this.getStyle()}
           mode="javascript"
           theme="monokai"
+          fontSize="13"
           value={this.state.code}
           onChange={this.handleCodeChange}
           name="UNIQUE_ID_OF_DIV"

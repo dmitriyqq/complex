@@ -2,6 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import { ViewConstants, Action } from "Root/Constants";
 import { Change, Toggle } from "Redux/Actions";
+import { downloadObjectAsJson } from "../Lib/Utils";
 
 const HeaderStyle = {
   display: "flex",
@@ -32,6 +33,7 @@ class Header extends React.Component {
 
     this.wrapperSketchNameChange = this.wrapperSketchNameChange.bind(this);
     this.handleSketchNameInput = this.handleSketchNameInput.bind(this);
+    this.handleExportSketches = this.handleExportSketches.bind(this);
   }
 
   handleSketchNameInput(e) {
@@ -40,6 +42,11 @@ class Header extends React.Component {
 
   wrapperSketchNameChange() {
     this.props.handleSketchNameChange(this.state.sketchName);
+  }
+
+  handleExportSketches(){
+    const name = "sketches" + new Date().toLocaleTimeString();
+    downloadObjectAsJson(this.props.gallery, name);
   }
 
   render() {
@@ -90,6 +97,9 @@ class Header extends React.Component {
           />
           <button onClick={this.wrapperSketchNameChange}>Change</button>
         </div>
+        <div style={Margin}>
+          <button onClick={this.handleExportSketches}>Export Projects</button>
+        </div>
       </div>
     );
   }
@@ -97,7 +107,8 @@ class Header extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    config: state.ViewsWrapperConfig
+    config: state.ViewsWrapperConfig,
+    gallery: state.Gallery
   };
 };
 
@@ -105,10 +116,10 @@ const mapDispatchToProps = dispatch => {
   return {
     handleConsole: () => {
       dispatch(Toggle(Action.UPDATE_EDITOR, "editor"));
-    }, 
+    },
     handleScreenValue: e => {
       dispatch(Change(Action.VIEW_WRAPPER_CHANGED, { views: e.target.value }));
-    }, 
+    },
     handleSingleCam: () => {
       dispatch(Toggle(Action.VIEW_WRAPPER_CHANGED, "singleCam"));
     },
@@ -127,3 +138,5 @@ export default connect(
   mapStateToProps,
   mapDispatchToProps
 )(Header);
+
+

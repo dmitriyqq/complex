@@ -1,6 +1,7 @@
 import { Action } from "Root/Constants";
+import DEFAULT_SKETCHES from "Root/default.js"
 
-const DEFAULT_STATE = [];
+const DEFAULT_STATE = DEFAULT_SKETCHES || [];
 
 export default (state = DEFAULT_STATE, action) => {
   let newSketches;
@@ -8,7 +9,7 @@ export default (state = DEFAULT_STATE, action) => {
   if (action.type === "@@INIT") {
     const sketches = localStorage.getItem("gallery");
     if (sketches) {
-      return JSON.parse(sketches);
+      return JSON.parse(sketches).concat(DEFAULT_STATE);
     } else {
       return DEFAULT_STATE;
     }

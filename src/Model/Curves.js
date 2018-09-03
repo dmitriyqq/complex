@@ -54,7 +54,7 @@ class Curve {
         for (let formula of this.y) {
           formula.setVariable("x", new Complex(xr, xi));
           const y = formula.calc();
-          data.push({ xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++ });
+          data.push({ i, j, xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++ });
         }
       }
     }
@@ -90,6 +90,16 @@ export class Parabola extends Curve {
 export class Hyperbola extends Curve {
   constructor(params) {
     const formula = [GlobalParser.eval("A / x")];
+    super(formula, params);
+  }
+}
+
+export class Hyperbola2 extends Curve {
+  constructor(params) {
+    const formula = [
+      GlobalParser.eval("((b*x/a)^2-b^2)^(1/2)"),
+      GlobalParser.eval("0-((b*x/a)^2-b^2)^(1/2)")
+    ];
     super(formula, params);
   }
 }
@@ -152,7 +162,8 @@ export class UCurve {
         for (let formula of this.y) {
           formula.setVariable("x", new Complex(xr, xi));
           const y = formula.calc();
-          data.push({ i, j, xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++ });
+          console.log(i, j);
+          data.push({ i: i, j: j, xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++ });
         }
       }
     }

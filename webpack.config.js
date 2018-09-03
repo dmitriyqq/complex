@@ -40,7 +40,13 @@ module.exports = {
             attrs: [":data-src"]
           }
         }
-      }
+      },
+      {
+        test: /\.(c|cpp)$/,
+        use: {
+            loader: 'cpp-wasm-loader'
+        }
+    }
     ]
   },
   devtool: "source-map",

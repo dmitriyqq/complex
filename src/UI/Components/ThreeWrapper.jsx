@@ -1,9 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-
 import { Action } from "Root/Constants";
 import TrackCam from "Lib/TrackCam";
 import * as THREE from "three";
+import ProgramsManager from "../../Model/ProgramsManager";
 
 const ViewBoxStyle = ViewBox => {
   return {
@@ -17,7 +17,7 @@ class ThreeWrapper extends React.Component {
     super(props);
 
     this.state = {};
-    
+
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.shadowMap.enabled = true;
     this.renderer.setSize(this.props.width, this.props.height);
@@ -28,50 +28,29 @@ class ThreeWrapper extends React.Component {
   componentDidMount() {
     const mount = this.canvasPlaceholder.current;
     mount.appendChild(this.renderer.domElement);
-    this.setState();
+    this.forceUpdate();
   }
 
-  clearScene(){
-    if(!this.scene)
-      return;
-    // TODO fix memory leak
-    console.log("clearing");
-    if(this.scene){
-      const scene = this.scene;
-      for ( let i = scene.children.length - 1; i >= 0 ; i-- ) {
-        const obj = scene.children[i];
-
-        if(obj.geometry){
-          obj.geometry.dispose();
-        }
-        if(obj.material){
-          obj.material.dispose();
-        }
-        if(obj.texture){
-          obj.texture.dispose();
-        }
-        scene.remove(obj);
-        delete scene.children[i];
-      }
+  shouldComponentUpdate(){
+    if(this.camera && this.props.camera){
+      this.camera.dispose();
     }
 
-    delete this.scene
+    return true;
   }
+
 
   updateImage(renderer) {
     this.props.updateImage(renderer.domElement.toDataURL());
   }
 
   render() {
-    this.clearScene()
 
     const placeHolder = (
       <div style={ViewBoxStyle(this)} ref={this.canvasPlaceholder} />
     );
 
     const mount = this.canvasPlaceholder.current;
-
-
     if (!mount) return placeHolder;
 
     let camera;
@@ -84,29 +63,25 @@ class ThreeWrapper extends React.Component {
       );
     } else camera = this.props.camera;
 
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0.8, 0.8, 0.8);
+    //const scene = new THREE.Scene();
+    //scene.background = new THREE.Color(1.0, 1.0, 1.0);
 
     camera.setup(mount);
-
-    // console.log("rendering ");
-    // this.clear();
-    // console.log(this.camera);
-
     camera.addSubscriber(() => {
+      const program = ProgramsManager.getProgram(this.props.i);
       //this.program.update(this.camera.camera);
-      this.renderer.render(scene, camera.camera);
-      this.props.program.update();
+      program.update(this.renderer);
     });
+    camera.update();
+    this.camera = camera;
 
     this.renderer.setSize(this.props.width, this.props.height);
-    this.props.program.setup(this.renderer, scene, camera.camera);
-    this.props.program.render();
-    camera.update(this.renderer, scene);
+    const program = ProgramsManager.getProgram(this.props.i);
+    program.setup(this.renderer, camera.camera);
+    program.render();
+
 
     this.updateImage(this.renderer);
-    this.scene = scene
-    //console.log(this.camera.camera.aspect);
     return placeHolder;
   }
 }

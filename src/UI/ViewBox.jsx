@@ -1,11 +1,10 @@
 import React from "react";
 import { connect } from "react-redux";
 
-import CubicProgram from "ThreePrograms/CubicProgram";
-import PolygonProgram from "ThreePrograms/PolygonProgram";
 import ThreeWrapper from "Components/ThreeWrapper";
 
 import { Action } from "Root/Constants"
+import ProgramsManager from "../Model/ProgramsManager";
 
 const ViewBoxStyle = ViewBox => {
   return {
@@ -47,7 +46,7 @@ class Header extends React.Component {
   handleModeChange() {
     this.state.renderMethod =
       this.state.renderMethod === "Cubes" ? "Polygons" : "Cubes";
- 
+
     this.props.onChange(this.state);
   }
 
@@ -59,6 +58,14 @@ class Header extends React.Component {
   }
 
   render() {
+    const tryColor = (mapping) => {
+      switch(mapping){
+        case 'x': return '#FF0000';
+        case 'y': return '#00FF00';
+        case 'z': return '#0000FF';
+        default : return '#000';
+      }
+    }
     const mappings = ["x", "y", "z"];
     const mapValues = ["xr", "xi", "yr", "yi"];
 
@@ -76,7 +83,7 @@ class Header extends React.Component {
           const mappingName = mapping;
           return (
             <div key={i}>
-              <label htmlFor={mappingName}>{mapping + ":"}</label>
+              <label htmlFor={mappingName} style={{color: tryColor(mapping)}}>{mapping + ":"}</label>
               <select
                 key={i}
                 name={mappingName}
@@ -102,6 +109,7 @@ class Header extends React.Component {
     );
   }
 }
+
 
 class ViewBox extends React.Component {
   constructor(props){
@@ -131,22 +139,12 @@ class ViewBox extends React.Component {
           }
         }
     };
+    console.log("updating view box since model changed")
 
     const config = this.props.model.projConfigs[this.props.i] || defaultConfig;
     const model = this.props.model.model;
-    let program;
-
-    if (config.renderMethod == "Cubes") {
-      program = new CubicProgram(
-        model,
-        config.mappings
-      );
-    } else {
-      program = new PolygonProgram(
-        model,
-        config.mappings
-      );
-    }
+    console.log(model)
+    const program = ProgramsManager.updateProgram(this.props.i, config, model);
 
     return (
       <div style={ViewBoxStyle(this)}>
@@ -154,10 +152,10 @@ class ViewBox extends React.Component {
         <ThreeWrapper
           camType={this.props.camType}
           camera={this.props.camera}
-          program={program}
           width={this.props.config.width}
           height={this.props.config.height}
           i={this.props.i}
+          program={program}
         />
       </div>
     );
@@ -166,7 +164,7 @@ class ViewBox extends React.Component {
 
 const mapStateToProps = state => {
   return {
-    model: state.Model 
+    model: state.Model
   }
 };
 
