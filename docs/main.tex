@@ -1,0 +1,92 @@
+\documentclass[a4paper]{article}
+% Русский язык
+\usepackage[utf8]{inputenc}
+\usepackage[russian]{babel}
+% Математические символы и формулы
+\usepackage{mathtools}
+\usepackage{float}
+% Разбиение на разные файлы
+\usepackage{subfiles}
+% Отступы с краев(margin)
+\usepackage[margin=1in]{geometry}
+% Форматирование заголовков
+\usepackage{titlesec}
+\usepackage{indentfirst} % Красная строка
+% Схемки
+% \usepackage{circuitikz}
+% Картинки
+\usepackage{graphicx}
+\usepackage{breqn}
+
+\begin{document}
+
+\section{INPUT}
+$A_r$, $A_ii$, $B_r$, $B_i$
+
+\section{FORMULA}
+$$ y_r + y_ii = (A_r + A_ii)(x_r + x_ii) + B_r + B_ii $$
+
+\section{YR}
+$$ y_r = (A_r + A_ii)(x_r + x_ii) + B_r + B_ii - y_ii$$
+
+\section{YI}
+$$ y_i = \frac{(A_r + A_ii)(x_r + x_ii) + B_r + B_ii - y_r}{i} $$
+
+\section{XR}
+$$ x_r = \frac{y_r + y_ii - (A_r + A_ii)(x_ii) - B_r - B_ii}{A_r + A_ii} $$
+
+\section{XI}
+$$ x_i = \frac{y_r + y_ii - (A_r + A_ii)(x_r) - B_r - B_ii}{A_r + A_ii} $$
+
+\section{abc}
+$$ y_r = (A_r + A_ii)(x_r + x_ii) + B_r + B_ii - y_ii $$
+
+\subsection{$x_r = 0, x_i = 0, y_i = 0$}
+$$ y_r = (A_r + A_ii)(0 + 0) + B_r + B_ii - 0i = B_r + B_ii = B_r $$
+
+\subsection{$x_r = 1, x_i = 0, y_i = 0$}
+$$ y_r = (A_r + A_ii)(1 + 0i) + B_r + B_ii - 0i = A_r + A_ii + B_r + B_ii = A_r + B_r $$
+
+\subsection{$x_r = 0, x_i = 1, y_i = 0$}
+$$ y_r = (A_r + A_ii)(0 + i) + B_r + B_ii - 0i = A_ri - A_i + B_r + B_ii = B_r - A_i $$
+
+\section{abc2}
+\subsection{$x_r = 0, x_i = 0, y_r = 0$}
+$$ y_i = -B_r + B_i $$
+
+\subsection{$x_r = 1, x_i = 0, y_r = 0$}
+$$ y_i = -A_r + A_i - B_r + B_i $$
+
+\subsection{$x_r = 0, x_i = 1, y_r = 0$}
+$$ y_i = A_r + A_i - B_r + B_i $$
+
+
+\subsubsection{$ Ax + By + Cz + D = 0 $}
+\begin{table}[h]
+    \centering
+    \begin{tabular}{| c c c |}
+        $x - x_0 $ & $ x_1 - x_0 $ & $ x_2 - x_0 $ \\
+        $y - y_0 $ & $ y_1 - y_0 $ & $ x_2 - x_0 $ \\
+        $z - z_0 $ & $ z_1 - x_0 $ & $ x_2 - x_0 $ \\
+    \end{tabular}
+\end{table}
+
+$$ x = x_r $$
+$$ y = y_r $$
+$$ z = x_i $$
+\begin{table}[h]
+    \centering
+    \begin{tabular}{| c c c |}
+        $x - 0$   & $ 1 - 0           $ & $ 0 - 0$ \\
+        $y - B_r$ & $ A_r + B_r - B_r $ & $ -A_i + B_r - B_r $ \\
+        $z - 0$   & $ 0 - 0           $ & $ 1 - 0$ \\
+    \end{tabular}
+\end{table}
+
+
+\section{OUTPUT}
+$A_1$, $B_1$, $C_1$, $D_1$,
+$A_2$, $B_2$, $C_2$, $D_2$,
+
+
+\end{document}

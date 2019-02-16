@@ -1,0 +1,50 @@
+.LineProjectionPage {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;
+    grid-template-areas: 
+      "complexHeader planeHeader"
+      "complexXRYRXI planeXRYRXI"
+      "anotherComplexHeader anotherPlaneHeader"
+      "complexXRYIXI planeXRYIXI";
+}
+
+.ComplexHeader {
+    grid-area: complexHeader;
+    background-color: palegreen;
+}
+
+.PlaneHeader {
+    grid-area: planeHeader;
+    background-color: pink;
+}
+
+.ComplexXRYRXI {
+    grid-area: complexXRYRXI;
+    background-color: aqua;
+}  
+
+.PlaneXRYRXI {
+    grid-area: planeXRYRXI;
+    background-color: navy;
+}
+
+.AnotherComplexHeader {
+    grid-area: anotherComplexHeader;
+    background-color: gold;
+}
+
+.AnotherPlaneHeader {
+    grid-area: anotherPlaneHeader;
+    background-color: lightcoral;
+}
+
+.ComplexXRYIXI {
+    grid-area: complexXRYIXI;
+    background-color: maroon;
+}
+
+.PlaneXRYIXI {
+    grid-area: planeXRYIXI;
+    background-color: fuchsia;
+}
