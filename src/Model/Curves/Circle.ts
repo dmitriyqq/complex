@@ -1,6 +1,6 @@
 import { Param } from 'src/Lib/Param';
 import { Parser } from "src/Lib/Parser";
-import { Curve } from '../Curves';
+import { Curve } from '../Curve';
 
 export class Circle extends Curve {
     constructor(params: Param[]) {

@@ -1,6 +1,6 @@
 import { ComplexVector } from 'src/Lib/ComplexVector';
 import { Data } from 'src/Lib/Data';
-import { Curve } from './Curves';
+import { Curve } from './Curve';
 
 type Label = "xr" | "xi" | "yr" | "yi";
 const LABELS = ["xr", "xi", "yr", "yi"];

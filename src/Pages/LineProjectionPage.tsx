@@ -9,7 +9,7 @@ import CubicProgram from 'src/View/ThreePrograms/CubicProgram';
 import { IProgram } from 'src/View/ThreePrograms/IProgram';
 
 import 'src/assets/LineProjectionPage.css';
-import { Curve } from 'src/Model/Curves';
+import { Curve } from 'src/Model/Curve';
 import { Plane } from 'src/View/ThreePrograms/Plane';
 import { PlaneProgram } from 'src/View/ThreePrograms/PlaneProgram';
 

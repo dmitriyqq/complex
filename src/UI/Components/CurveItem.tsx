@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Formula } from 'src/Lib/Formula';
-import { Curve } from 'src/Model/Curves';
+import { Curve } from 'src/Model/Curve';
 
 const ParamsBoxStyle: React.CSSProperties = {
   display: "flex",

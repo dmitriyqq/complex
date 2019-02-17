@@ -6,25 +6,19 @@ import { connect } from "react-redux";
 // import Sidebar from "./UI/SideBar";
 // import ViewsWrapper from "./UI/ViewsWrapper";
 
-import { BrowserRouter as Router } from "react-router-dom";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 import { ViewConstants } from "./Constants";
 import { IEditorState } from './Redux/Reducers/Editor';
 import { IModelState } from './Redux/Reducers/Model';
 
-import { LineProjectionPage } from './Pages/LineProjectionPage';
-import { PageSelector } from './UI/PageSelector';
+// import { LineProjectionPage } from './Pages/LineProjectionPage';
+// import { PageSelector } from './UI/PageSelector';
+import { CurveViewComponent } from './UI/ViewComponents/CurveViewComponent';
 
 const AppStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column"
 };
-
-// const ContentStyle: React.CSSProperties = {
-//   backgroundColor: "#FFF",
-//   color: "black",
-//   display: "flex",
-//   flexDirection: "row",
-// };
 
 interface IProps {
   model: IModelState;
@@ -59,7 +53,8 @@ class App extends React.Component<IProps, IState>{
         {/* <Header singleCam={true} camType={'Ortho'} /> */}
         <Router>
           <React.Fragment>
-          <PageSelector />
+          {/* <PageSelector /> */}
+          <Route path="/curve/:text" component={CurveViewComponent}/>
           {/* <div style={ContentStyle}>
             {editor}
             <ViewsWrapper
@@ -69,7 +64,7 @@ class App extends React.Component<IProps, IState>{
             />
             <Sidebar />
           </div> */}
-          <LineProjectionPage />
+          {/* <LineProjectionPage /> */}
           </React.Fragment>
         </Router>
 
