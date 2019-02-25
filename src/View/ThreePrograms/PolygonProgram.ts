@@ -1,20 +1,23 @@
+import { Program } from 'src/View/ThreePrograms/Program';
 import * as THREE from "three";
 
-import Model from 'src/Model/Model';
-import { IMappings } from 'src/UI/ViewBoxHeader';
+import { Mappings } from 'src/Lib/Mappings';
+import { Model } from 'src/Model/Model';
 import { project3d } from "../../Model/Projection3D";
-import CubicProgram from "../ThreePrograms/CubicProgram";
 
-export default class PolygonPrograms extends CubicProgram {
-  constructor(model: Model, mappings: IMappings) {
-    super(model, mappings);
+export class PolygonProgram extends Program {
+  constructor(public model: Model, public mappings: Mappings) {
+    super();
+    // super(model, mappings);
   }
 
   public render() {
+    super.render();
+    const { matrixSize } = this.model.properties;
     const data = project3d(this.model, this.mappings);
 
     this.cellSize = 1;
-    this.totalSize = this.cellSize * this.model.matrixSize;
+    this.totalSize = this.cellSize * matrixSize;
 
     const materialsMap = new Map();
 
@@ -45,7 +48,7 @@ export default class PolygonPrograms extends CubicProgram {
       chunks.get(index).push(d);
     }
 
-    for (const [chunk] of Array.from(chunks)) {
+    for (const [, chunk] of Array.from(chunks)) {
       const geometry = new THREE.Geometry();
 
       let n = 0;
@@ -99,18 +102,12 @@ export default class PolygonPrograms extends CubicProgram {
       geometry.computeVertexNormals();
 
       let material;
-      for (const c of Array.from(this.model.getCurves())) {
-        if (c.index === chunk[0].curve) {
-          material = getMatrerial(c.color);
-        }
-      }
+      material = getMatrerial(0);
 
       const mesh = new THREE.Mesh(geometry, material);
-      this.addGrid();
       this.scene.add(mesh);
     }
 
-    // this.setupLight();
-    this.renderer.render(this.scene, this.camera);
+    this.renderer.render(this.scene, this.camera.camera);
   }
 }

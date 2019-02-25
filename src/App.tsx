@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { connect } from "react-redux";
 
 // import Console from "./UI/Console";
 // import Header from "./UI/Header";
@@ -8,30 +7,31 @@ import { connect } from "react-redux";
 
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { ViewConstants } from "./Constants";
-import { IEditorState } from './Redux/Reducers/Editor';
-import { IModelState } from './Redux/Reducers/Model';
+// import { IEditorState } from './Redux/Reducers/Editor';
+// import { IModelState } from './Redux/Reducers/Model';
 
 // import { LineProjectionPage } from './Pages/LineProjectionPage';
 // import { PageSelector } from './UI/PageSelector';
-import { CurveViewComponent } from './UI/ViewComponents/CurveViewComponent';
+import { Demo } from './Scenes/Demo';
+import { CurveView } from './UI/ViewComponents/CurveView';
 
 const AppStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column"
 };
 
-interface IProps {
-  model: IModelState;
-  editor: IEditorState;
-}
+// interface IProps {
+  // model: IModelState;
+  // editor: IEditorState;
+// }
 
 interface IState {
   width: number;
   height: number;
 }
 
-class App extends React.Component<IProps, IState>{
-  constructor(props: IProps) {
+export class App extends React.Component<{}, IState>{
+  constructor(props: {}) {
     super(props);
 
     this.state = {
@@ -54,7 +54,8 @@ class App extends React.Component<IProps, IState>{
         <Router>
           <React.Fragment>
           {/* <PageSelector /> */}
-          <Route path="/curve/:text" component={CurveViewComponent}/>
+          <Route path="/curve/:text" component={CurveView}/>
+          <Route path="/demo/" component={Demo}/>
           {/* <div style={ContentStyle}>
             {editor}
             <ViewsWrapper
@@ -79,13 +80,3 @@ class App extends React.Component<IProps, IState>{
     }));
   }
 }
-
-const mapStateToProps = (state: any): IProps => ({
-  editor: state.Editor,
-  model: state.Model,
-});
-
-
-export default connect(
-  mapStateToProps
-)(App);

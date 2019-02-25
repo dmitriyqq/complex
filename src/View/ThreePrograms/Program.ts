@@ -1,38 +1,55 @@
 import * as THREE from "three";
 
+import { Mesh } from 'three';
 import { IProgram } from './IProgram';
 
+import fontProvider from 'src/FontProvider';
+
+import { TrackCam } from 'src/Lib/TrackCam';
+
+
+const DEFAULT_NAMES = {
+  x: 'x',
+  y: 'y',
+  z: 'z',
+}
+
+export interface IAxiesNames {
+  x: string;
+  y: string;
+  z: string;
+}
+
 export class Program implements IProgram {
+  public ready: boolean = false;
+
   protected cellSize: number;
   protected totalSize: number;
 
   protected renderer: THREE.Renderer;
-  protected camera: THREE.Camera;
+  protected camera: TrackCam;
   protected scene: THREE.Scene;
-
-  private needGrid: boolean = true;
-  // private needAxies: boolean = true;
 
   private gridMaterial: THREE.LineBasicMaterial;
   private xAxiesMaterial: THREE.LineBasicMaterial;
   private yAxiesMaterial: THREE.LineBasicMaterial;
   private zAxiesMaterial: THREE.LineBasicMaterial;
 
-  private xAxiesGeometry: THREE.Geometry;
-  private yAxiesGeometry: THREE.Geometry;
-  private zAxiesGeometry: THREE.Geometry;
-  private gridGeometry: THREE.Geometry;
-  // private coneGeometry: THREE.Geometry;
-
   private light: THREE.Light;
   private glight: THREE.Light;
 
-  constructor() {
+  private xMesh: THREE.Mesh;
+  private yMesh: THREE.Mesh;
+  private zMesh: THREE.Mesh;
+
+  constructor(private names: IAxiesNames = DEFAULT_NAMES, private needGrid: boolean = true, private needAxies: boolean = true, private needText = true) {
 
     const linewidth = 2;
 
     this.gridMaterial = new THREE.LineBasicMaterial({
       color: 0xaaaaaa,
+      opacity: 0.1,
+      transparent: true,
     });
     this.xAxiesMaterial = new THREE.LineBasicMaterial({
       color: 0xff0000,
@@ -50,7 +67,7 @@ export class Program implements IProgram {
     this.cellSize = 1;
   }
 
-  public setupLight(){
+  public setupLight() {
     this.light = new THREE.DirectionalLight(0xffffff, 0.6);
     this.glight = new THREE.AmbientLight(new THREE.Color(1, 1, 1), 0.2);
 
@@ -61,42 +78,18 @@ export class Program implements IProgram {
   }
 
   public render() {
-    
-    // console.log("projecting ");
-    // const data = project3d(this.model, this.mappings);
-    // console.log("total data for geometry = " + this.data.size);
 
-    // this.totalSize = this.cellSize * this.model.matrixSize;
+    this.clearScene();
+    this.setupLight();
 
-    // remove all objects
-    while (this.scene && this.scene.children.length > 0) {
-      this.scene.remove(this.scene.children[0]);
+    if (this.needGrid) {
+      this.addGrid();
     }
 
-    // console.log("generating geometry");
-    // console.log(this.data.size);
-
-    // const geometry = new THREE.BoxGeometry(1, 1, 1);
-
-    // for (const box of Array.from(data)) {
-    //   const x = -this.totalSize / 2 + (box.x + 1 / 2) * this.cellSize;
-    //   const y = -this.totalSize / 2 + (box.y + 1 / 2) * this.cellSize;
-    //   const z = -this.totalSize / 2 + (box.z + 1 / 2) * this.cellSize;
-
-    //   const mat = getMatrerial(box.color);
-    //   // console.log(mat);
-    //   const mesh = new THREE.Mesh(geometry, mat);
-    //   this.meshes.push(mesh)
-    //   mesh.position.set(x, y, z);
-    //   this.scene.add(mesh);
-    // }
     this.update();
-    this.setupLight();
-    this.addGrid();
   }
 
-  public setup(renderer: THREE.Renderer, scene: THREE.Scene, camera: THREE.Camera): void {
-    // console.log("setup");
+  public setup(renderer: THREE.Renderer, scene: THREE.Scene, camera: TrackCam): void {
     this.renderer = renderer;
 
     this.scene = scene;
@@ -104,36 +97,28 @@ export class Program implements IProgram {
 
     this.camera = camera;
     this.setupLight();
+    this.ready = true;
   }
 
 
-  public clearScene(){
-    try{
-      this.xAxiesGeometry.dispose();
-      this.yAxiesGeometry.dispose();
-      this.zAxiesGeometry.dispose();
-      this.gridGeometry.dispose();
-
-    } catch (err){
-      // console.log(err);
-    }
-
-    if(!this.scene) {
+  public clearScene() {
+    THREE.Cache.clear();
+    if (!this.scene) {
       return;
     }
     // TODO fix memory leak
-    if(this.scene && this.scene.children){
+    if (this.scene && this.scene.children) {
       const scene = this.scene;
-      for ( let i = scene.children.length - 1; i >= 0 ; i-- ) {
+      for (let i = scene.children.length - 1; i >= 0; i--) {
         const obj: any = scene.children[i];
 
-        if(obj.geometry){
+        if (obj.geometry) {
           obj.geometry.dispose();
         }
-        if(obj.material){
+        if (obj.material) {
           obj.material.dispose();
         }
-        if(obj.texture){
+        if (obj.texture) {
           obj.texture.dispose();
         }
         scene.remove(obj);
@@ -143,13 +128,22 @@ export class Program implements IProgram {
     // delete this.scene
   }
 
+  public setCameraPostion(cameraT: number, cameraA: number): any {
+    this.camera.setPosition(cameraA, cameraT);
+    this.update();
+  }
+
   public update() {
-    if(this.light) {
-      this.light.position.copy(this.camera.position);
+    if (this.light) {
+      this.light.position.copy(this.camera.camera.position);
     }
 
-    if(this.renderer) {
-      this.renderer.render(this.scene, this.camera);
+    if (this.renderer) {
+      this.renderer.render(this.scene, this.camera.camera);
+    }
+
+    if (this.needText) {
+      this.updateTextPosition();
     }
   }
 
@@ -162,7 +156,7 @@ export class Program implements IProgram {
     const xAxiesGeometry = new THREE.Geometry();
     const yAxiesGeometry = new THREE.Geometry();
     const zAxiesGeometry = new THREE.Geometry();
-    const coneGeometry = new THREE.ConeGeometry( 0.8, 10, 16 );
+    const coneGeometry = new THREE.ConeGeometry(0.8, 10, 16);
 
     const addLine = (x1: number, y1: number, x2: number, y2: number, mapLine: any, geometry: any) => {
       geometry.vertices.push(mapLine(x1, y1), mapLine(x2, y2));
@@ -176,6 +170,7 @@ export class Program implements IProgram {
     };
 
     const totalSize = 100;
+    const halfSize = totalSize / 2;
 
     const planeGrid = (mapLine: any) => {
       for (let i = 0; i < totalSize; i++) {
@@ -206,29 +201,69 @@ export class Program implements IProgram {
 
     const mappings = [mapLineY];
     for (const mp of mappings) {
-      if (this.needGrid){
+      if (this.needGrid) {
         planeGrid(mp);
+        const lines = new THREE.LineSegments(gridGeometry, this.gridMaterial);
+        this.scene.add(lines);
       }
     }
 
-    addLine(-100, 0, 100, 0, mapLineY, xAxiesGeometry);
-    addLine(0, -100, 0, 100, mapLineZ, yAxiesGeometry);
-    addLine(0, -100, 0, 100, mapLineY, zAxiesGeometry);
+    if (this.needAxies) {
+      addLine(-halfSize, 0, halfSize, 0, mapLineY, xAxiesGeometry);
+      addLine(0, -halfSize, 0, halfSize, mapLineZ, yAxiesGeometry);
+      addLine(0, -halfSize, 0, halfSize, mapLineY, zAxiesGeometry);
 
-    addCone(50, 0, 0, this.xAxiesMaterial, (mesh: THREE.Mesh) => mesh.rotateZ(-Math.PI/2));
-    addCone(0, 50-2, 0, this.yAxiesMaterial, (mesh: THREE.Mesh) => mesh);
-    addCone(0, 0, 50, this.zAxiesMaterial, (mesh: THREE.Mesh) => mesh.rotateX(Math.PI/2));
+      addCone(halfSize, 0, 0, this.xAxiesMaterial, (mesh: THREE.Mesh) => mesh.rotateZ(-Math.PI / 2));
+      addCone(0, halfSize, 0, this.yAxiesMaterial, (mesh: THREE.Mesh) => mesh);
+      addCone(0, 0, halfSize, this.zAxiesMaterial, (mesh: THREE.Mesh) => mesh.rotateX(Math.PI / 2));
 
-    const lines = new THREE.LineSegments(gridGeometry, this.gridMaterial);
-    this.scene.add(lines);
-    this.scene.add(new THREE.LineSegments(xAxiesGeometry, this.xAxiesMaterial));
-    this.scene.add(new THREE.LineSegments(yAxiesGeometry, this.yAxiesMaterial));
-    this.scene.add(new THREE.LineSegments(zAxiesGeometry, this.zAxiesMaterial));
 
-    this.xAxiesGeometry = xAxiesGeometry;
-    this.yAxiesGeometry = yAxiesGeometry;
-    this.zAxiesGeometry = zAxiesGeometry;
-    this.gridGeometry = gridGeometry;
-    // this.coneGeometry = coneGeometry;
+      this.scene.add(new THREE.LineSegments(xAxiesGeometry, this.xAxiesMaterial));
+      this.scene.add(new THREE.LineSegments(yAxiesGeometry, this.yAxiesMaterial));
+      this.scene.add(new THREE.LineSegments(zAxiesGeometry, this.zAxiesMaterial));
+    }
+
+    if (this.needText) {
+      const font = fontProvider.getFont();
+      // tslint:disable-next-line:no-console
+      const textParams = {
+        curveSegments: 12,
+        font,
+        height: 0.3,
+        size: 5,
+      };
+
+      if (font) {
+        const xTextGeometry = new THREE.TextGeometry(this.names.x, textParams);
+        const yTextGeometry = new THREE.TextGeometry(this.names.y, textParams);
+        const zTextGeometry = new THREE.TextGeometry(this.names.z, textParams);
+
+        const xMesh = new Mesh(xTextGeometry, this.xAxiesMaterial);
+        xMesh.position.set(halfSize, 3, 0);
+        this.scene.add(xMesh);
+
+        const yMesh = new Mesh(yTextGeometry, this.yAxiesMaterial);
+        yMesh.position.set(3, halfSize, 0);
+        this.scene.add(yMesh);
+
+        const zMesh = new Mesh(zTextGeometry, this.zAxiesMaterial);
+        zMesh.position.set(0, 3, halfSize);
+        this.scene.add(zMesh);
+
+        this.xMesh = xMesh;
+        this.yMesh = yMesh;
+        this.zMesh = zMesh;
+
+        this.updateTextPosition();
+      }
+    }
+  }
+
+  private updateTextPosition() {
+    if (this.xMesh && this.yMesh && this.zMesh) {
+      this.xMesh.quaternion.copy(this.camera.camera.quaternion);
+      this.yMesh.quaternion.copy(this.camera.camera.quaternion);
+      this.zMesh.quaternion.copy(this.camera.camera.quaternion);
+    }
   }
 }

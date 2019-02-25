@@ -1,4 +1,4 @@
-import Model from 'src/Model/Model';
+import { Model } from 'src/Model/Model';
 import * as THREE from 'three';
 import { Plane } from './Plane';
 import { Program } from './Program';
@@ -9,33 +9,29 @@ export class PlaneProgram extends Program {
     }
 
     public render() {
-        // const data = project3d(this.model, this.mappings);
-        // console.log("total data for geometry = " + this.data.size);
-        super.render();
-        this.totalSize = this.cellSize * this.model.matrixSize;
+        const {matrixSize, start, step} = this.model.properties;
 
+        super.render();
+        this.totalSize = this.cellSize * matrixSize;
 
         const material = new THREE.MeshLambertMaterial({
             color: new THREE.Color()
         });
 
-        // console.log("generating geometry");
-        // console.log(this.data.size);
 
         const geometry = new THREE.BoxGeometry(1, 1, 1);
-        const p = this.plane;
-        const model = this.model;
+        const {A, B, C, D} = this.plane;
 
-        for (let i = 0; i < model.matrixSize; i++) {
-            for (let j = 0; j < model.matrixSize; j++) {
-                const xr = model.start.xr + model.step * i + model.step / 2;
-                const xi = model.start.xi + model.step * j + model.step / 2;
-                const yy = (p.A * xr + p.C * xi + p.D) / p.B;
+        for (let i = 0; i < matrixSize; i++) {
+            for (let j = 0; j < matrixSize; j++) {
+                const xr = start.xr + step * i + step / 2;
+                const xi = start.xi + step * j + step / 2;
+                const yy = (A * xr + C * xi + D) / B;
 
 
-                let x = (xr - model.start.xr) / model.step;
-                let y = (yy - model.start.yr) / model.step;
-                let z = (xi - model.start.xi) / model.step;
+                let x = (xr - start.xr) / step;
+                let y = (yy - start.yr) / step;
+                let z = (xi - start.xi) / step;
 
                 x = -this.totalSize / 2 + (x + 1 / 2) * this.cellSize;
                 y = -this.totalSize / 2 + (y + 1 / 2) * this.cellSize;
@@ -43,13 +39,12 @@ export class PlaneProgram extends Program {
 
 
                 const mesh = new THREE.Mesh(geometry, material);
-                //   this.meshes.push(mesh)
                 mesh.position.set(x, y, z);
                 this.scene.add(mesh);
             }
         }
 
 
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.camera.camera);
     }
 }

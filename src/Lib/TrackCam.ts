@@ -14,7 +14,7 @@ interface ICameraConfig {
   cameraR: number;
 }
 
-export default class TrackCam {
+export class TrackCam {
   public camera: THREE.Camera;
   private cameraT = -Math.PI / 2;
   private cameraA = 2;
@@ -28,9 +28,9 @@ export default class TrackCam {
     this.type = type;
 
     if (this.type === "Ortho") {
-      this.camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 1, 2000);
+      this.camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, 0.00001, 4000);
     } else {
-      this.camera = new THREE.PerspectiveCamera(75, width / height, 1, 2000);
+      this.camera = new THREE.PerspectiveCamera(75, width / height, 0.00001, 4000);
     }
 
     // const conf = store.getState().Cams[this.id];
@@ -39,6 +39,13 @@ export default class TrackCam {
       this.cameraA = config.cameraA;
       this.cameraR = config.cameraR;
     }
+    this.update();
+  }
+
+  public setPosition(cameraT: number, cameraA: number): any {
+    this.cameraT = cameraT;
+    this.cameraA = cameraA;
+    this.cameraR = 120;
     this.update();
   }
 
@@ -89,7 +96,12 @@ export default class TrackCam {
     this.mount.addEventListener("mousewheel",
       (e: WheelEvent) => {
         this.cameraR += e.deltaY * 0.05;
-        this.update();
+
+        if (this.cameraR < 0) {
+          this.cameraR = 0;
+        } else {
+          this.update();
+        }
       },
       { passive: true }
     );

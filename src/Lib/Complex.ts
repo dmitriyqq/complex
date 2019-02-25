@@ -3,7 +3,7 @@ interface IPolarRepresentation {
   length: number;
 }
 
-export default class Complex {
+export class Complex {
   public static fromPolar(polar: IPolarRepresentation): Complex{
     return new Complex(
       polar.length * Math.cos(polar.theta),

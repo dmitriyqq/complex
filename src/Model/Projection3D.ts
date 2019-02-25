@@ -1,12 +1,12 @@
-import { IMappings } from 'src/UI/ViewBoxHeader';
-import Model from './Model';
+import { Mappings } from 'src/Lib/Mappings';
+import { Model } from './Model';
 
-export function project3d(model: Model, mappings: IMappings) {
-  const totalSize = model.matrixSize;
-  const data = model.getData();
+export function project3d(model: Model, mappings: Mappings) {
+  const {matrixSize} = model.properties;
+  const totalSize = matrixSize;
 
-  // Used for color
-  const curves = model.getCurves();
+  const data = model.build();
+  // const curves = model.curves;
 
   const projData = new Set();
 
@@ -22,19 +22,19 @@ export function project3d(model: Model, mappings: IMappings) {
   }
 
   for (const value of data) {
-    let color = {r: 1, g: 1, b: 1};
-    let curveIndex = 0;
+    // let color = {r: 1, g: 1, b: 1};
+    // let curveIndex = 0;
 
-    for (const el of curves) {
-      curveIndex = el.index;
-      if (el.index === value.curve) {
-        color = el.color;
-      }
-    }
+    // for (const el of curves) {
+    //   curveIndex++;
+    //   if (el.index === value.curve) {
+    //     color = el.color;
+    //   }
+    // }
 
     projData.add({
-      color,
-      curve: curveIndex,
+      // color,
+      // curve: curveIndex,
       formula: value.formula,
       i: value.i,
       j: value.j,

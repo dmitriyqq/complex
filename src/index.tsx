@@ -5,7 +5,7 @@ import * as React from "react";
 import { render } from "react-dom";
 import { Provider } from "react-redux";
 
-import App from "src/App";
+import { App } from "src/App";
 import store from "src/Redux/store"
 
 import 'src/index.css'

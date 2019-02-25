@@ -1,36 +1,15 @@
-import Complex from './Complex';
+import { Complex } from './Complex';
 import { Node } from './Node';
 import { TokenTypes } from './Parser';
 
 export class Formula {
-    private params: Map<string, Complex>;
+    public params: any = {};
 
-    constructor(public root: Node, public text: string) {
-        this.params = new Map<string, Complex>();
-
-        const params = this._getParams(this.root);
-        for (const param of params) {
-            this.params[param] = new Complex(0, 0);
-        }
-    }
-
-    public setVariable(param: string, val: Complex) {
-        this.params[param] = val;
-    }
-
-    public getParams() {
-        return this.params;
-    }
-
-    public getParam(paramName: string) {
-        return this.params[paramName];
-    }
+    constructor(public root: Node, public text: string) {}
 
     public calc(node?: Node): Complex {
         try {
-            if (!node) {
-                node = this.root;
-            }
+            node = node ? node : this.root;
 
             if (node.token.type === TokenTypes.OPERATION) {
                 let operandA: any = this.calc(node.left);
@@ -59,7 +38,7 @@ export class Formula {
             } else if (node.token.type === TokenTypes.NUMBER) {
                 return node.token.val as Complex;
             } else if (node.token.type === TokenTypes.PARAMETR) {
-                return this.params[node.token.val];
+                return this.getParam(node.token.val);
             }
 
             return new Complex();
@@ -69,28 +48,29 @@ export class Formula {
 
     }
 
-    public _getParams(node: Node): string[] {
-        let params: string[] = [];
+    public getParamNames(node?: Node): Set<string> {
+        node = node ? node : this.root;
+        let params: Set<string> = new Set();
         if (node.token.type === TokenTypes.OPERATION) {
-            params = params.concat(this._getParams(node.left));
-            params = params.concat(this._getParams(node.right));
-            return params;
+            params = new Set([...this.getParamNames(node.left), ...this.getParamNames(node.right)]);
         } else if (node.token.type === TokenTypes.PARAMETR) {
-            if (node.token.val !== "x") { params.push(node.token.val); }
+            params.add(node.token.val);
         }
         return params;
     }
 
-    public getParamNames(): string[] {
-        let params = this._getParams(this.root);
-        const ans: string[] = [];
-        params = params.filter(x => {
-            if (ans.indexOf(x) === -1) {
-                ans.push(x);
-                return true;
-            } else { return false; }
-        });
+    public setParam(param: string, val: Complex) {
+        this.params[param] = val;
+    }
 
-        return params;
+    public getParam(param: string): Complex {
+        return this.params[param] || new Complex();
+        // if (this.params.has(param)) {
+            // return this.params.get(param) as Complex;
+        // } else {
+            // tslint:disable-next-line:no-console
+            // console.warn(`No value for param ${param} specified, assuming zero`);
+            // return new Complex();
+        // }
     }
 }

@@ -3,8 +3,9 @@ import { connect } from "react-redux";
 
 import { Dispatch } from 'redux';
 import { Action } from "src/Constants";
-import { IModelState } from 'src/Redux/Reducers/Model';
-import { Parameter } from './Parameter';
+import { ModelProperties } from 'src/Lib/ModelProperties';
+
+import { Parameter } from 'src/UI/Components/Parameter';
 
 const ProjectionPositionStyle: React.CSSProperties = {
   display: "flex",
@@ -21,13 +22,13 @@ const CardStyle: React.CSSProperties = {
 };
 
 interface IProps {
-    model: IModelState;
+    model: ModelProperties;
     handleChange: (label: string, value: number) => void;
 }
 
 export class ProjectionPosition extends React.Component<IProps> {
   public render() {
-    const {model} = this.props.model;
+    const {model} = this.props;
     const params = [
       { label: "matrixSize", value: model.matrixSize },
       { label: "size", value: model.size },

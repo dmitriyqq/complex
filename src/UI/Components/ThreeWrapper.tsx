@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 import { Action } from "src/Constants";
-import TrackCam, { ProjectionType } from "src/Lib/TrackCam";
+import { ProjectionType, TrackCam } from "src/Lib/TrackCam";
 import { IProgram } from 'src/View/ThreePrograms/IProgram';
 import * as THREE from "three";
 import { Scene } from 'three';
@@ -47,15 +47,6 @@ class ThreeWrapper extends React.Component<IProps> {
     }
   }
 
-  // public shouldComponentUpdate(){
-  //   if(this.camera && this.props.camera){
-  //     this.camera.dispose();
-  //   }
-
-  //   return true;
-  // }
-
-
   public updateImage() {
     this.props.updateImage(this.renderer.domElement.toDataURL());
   }
@@ -90,7 +81,7 @@ class ThreeWrapper extends React.Component<IProps> {
     const program = this.props.program;
 
     if (program) {
-      program.setup(this.renderer, scene, camera.camera);
+      program.setup(this.renderer, scene, camera);
       program.render();
     }
     camera.addSubscriber(() => {

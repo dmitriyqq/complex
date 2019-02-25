@@ -1,7 +1,7 @@
 import * as React from "react";
 import { connect } from "react-redux";
 
-import Model from 'src/Model/Model';
+import { Model } from 'src/Model/Model';
 import CurveItem from "src/UI/Components/CurveItem";
 
 const CardStyle: React.CSSProperties = {
@@ -19,7 +19,7 @@ interface IProps {
 
 class CurveBox extends React.Component<IProps> {
   public render() {
-    const array = Array.from(this.props.model.model.getCurves());
+    const array = Array.from(this.props.model.model.curves);
     return (
       <div style={CardStyle}>
         <div>

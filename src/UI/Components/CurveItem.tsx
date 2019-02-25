@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Formula } from 'src/Lib/Formula';
 import { Curve } from 'src/Model/Curve';
 
 const ParamsBoxStyle: React.CSSProperties = {
@@ -20,9 +19,9 @@ interface IProps {
 
 export default class CurveItem extends React.Component<IProps> {
   public render() {
-    const curve = this.props.curve;
+    // const curve = this.props.curve;
     // console.log(this.props.curve.getParams().size)
-    const params =   this.props.curve.getParams();
+    const params = this.props.curve.getParamNames();
 
     const showParams = []
     for(const param in params){
@@ -32,14 +31,14 @@ export default class CurveItem extends React.Component<IProps> {
       // console.log(param)
     }
 
-    const color = curve.color ? `rgb(${curve.color.r},${curve.color.g},${curve.color.b})` : '#FFF';
+    const color = /* curve.color ? `rgb(${curve.color.r},${curve.color.g},${curve.color.b})` : */ '#FFF';
     // console.log(color);
     return (
       <React.Fragment>
-        <div style={{color}}>{curve.name ? curve.name : "Кривая"}</div>
+        <div style={{color}}>{"Кривая"}</div>
         <div>
-          {this.props.curve.formulae.map((formula: Formula, i: number) => (
-            <div key={i}>{"y = " + formula.text}</div>
+          {this.props.curve.formulae.map((formula: string, i: number) => (
+            <div key={i}>{"y = " + formula}</div>
           ))}
         </div>
         <div style={ParamsBoxStyle}>

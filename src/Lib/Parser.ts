@@ -1,7 +1,7 @@
-import Complex from "./Complex";
-import { Formula } from './Formula';
-import { Node } from './Node';
-import { Token } from './Token';
+import { Complex } from "src/Lib/Complex";
+import { Formula } from 'src/Lib/Formula';
+import { Node } from 'src/Lib/Node';
+import { Token } from 'src/Lib/Token';
 
 export const TokenTypes = Object.freeze({
   CLOSE_PAR: 4,

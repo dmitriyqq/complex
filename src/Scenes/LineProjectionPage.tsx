@@ -1,14 +1,14 @@
 import * as React from 'react'
-import Complex from 'src/Lib/Complex';
+import { Complex } from 'src/Lib/Complex';
 import { ProjectionType } from 'src/Lib/TrackCam';
 import { Line } from 'src/Model/Curves/Line';
-import Model from 'src/Model/Model';
+import { Model } from 'src/Model/Model';
 import ThreeWrapper from 'src/UI/Components/ThreeWrapper';
-import { IMappings } from 'src/UI/ViewBoxHeader';
 import CubicProgram from 'src/View/ThreePrograms/CubicProgram';
 import { IProgram } from 'src/View/ThreePrograms/IProgram';
 
 import 'src/assets/LineProjectionPage.css';
+import { Mappings } from 'src/Lib/Mappings';
 import { Curve } from 'src/Model/Curve';
 import { Plane } from 'src/View/ThreePrograms/Plane';
 import { PlaneProgram } from 'src/View/ThreePrograms/PlaneProgram';
@@ -54,9 +54,9 @@ export class LineProjectionPage extends React.Component<{}, IState> {
         // this.camera = new TrackCam(this.width, this.height, this.cameraType, 0);
         this.model = new Model();
         this.line = new Line([{ name: 'A', value: new Complex(1, 0) }, { name: 'B', value: new Complex() }]);
-        this.model.addCurve(this.line);
+        this.model.curves.push(this.line);
 
-        const mappingsR: IMappings =
+        const mappingsR: Mappings =
         {
             x: {
                 inverted: false,
@@ -72,7 +72,7 @@ export class LineProjectionPage extends React.Component<{}, IState> {
             }
         }
 
-        const mappingsI: IMappings =
+        const mappingsI: Mappings =
         {
             x: {
                 inverted: false,
@@ -92,7 +92,7 @@ export class LineProjectionPage extends React.Component<{}, IState> {
         this.programR = new CubicProgram(this.model, mappingsR);
         this.programI = new CubicProgram(this.model, mappingsI);
 
-        this.planeR =  {
+        this.planeR = {
             A: 2,
             B: 1,
             C: 1,
@@ -120,7 +120,7 @@ export class LineProjectionPage extends React.Component<{}, IState> {
     }
 
     public calcValues() {
-        const {ar, ai, br, bi} = this.state;
+        const { ar, ai, br, bi } = this.state;
 
         this.planeR.A = Number(ar);
         this.planeR.B = Number(1);
@@ -136,13 +136,13 @@ export class LineProjectionPage extends React.Component<{}, IState> {
 
         // \subsection{$x_r = 1, x_i = 0, y_r = 0$}
         // $$ y_i = -A_r + A_i - B_r + B_i $$
-        
+
         // \subsection{$x_r = 0, x_i = 1, y_r = 0$}
         // $$ y_i = A_r + A_i - B_r + B_i $$
 
-        this.line.setParam('A', new Complex(+ar, +ai))
-        this.line.setParam('B', new Complex(+br, +bi))
-        this.model.rebuild();
+        this.line.params.A = new Complex(+ar, +ai)
+        this.line.params.B = new Complex(+br, +bi)
+        // this.model.build();
     }
 
     public handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,12 +152,12 @@ export class LineProjectionPage extends React.Component<{}, IState> {
 
         const { name, value } = e.target;
         this.setState((): any => ({ [name]: value }));
-       
+
     }
 
     public render() {
-        const {ar, ai, br, bi} = this.state;
-        const {A, B, C, D} = this.planeR;
+        const { ar, ai, br, bi } = this.state;
+        const { A, B, C, D } = this.planeR;
         return <div className='LineProjectionPage'>
             <div className="ComplexHeader">
                 <div>Комп. прямая</div>
@@ -169,19 +169,19 @@ export class LineProjectionPage extends React.Component<{}, IState> {
                 Комплексная прямая
                 <div>
                     <label>ar</label>
-                    <input type="text" name='ar'onChange={this.handleChange} value={this.state.ar}/>
+                    <input type="text" name='ar' onChange={this.handleChange} value={this.state.ar} />
                 </div>
                 <div>
                     <label>ai</label>
-                    <input type="text" name='ai' onChange={this.handleChange} value={this.state.ai}/>
+                    <input type="text" name='ai' onChange={this.handleChange} value={this.state.ai} />
                 </div>
                 <div>
                     <label>br</label>
-                    <input type="text" name='br' onChange={this.handleChange} value={this.state.br}/>
+                    <input type="text" name='br' onChange={this.handleChange} value={this.state.br} />
                 </div>
                 <div>
                     <label>bi</label>
-                    <input type="text" name='bi' onChange={this.handleChange} value={this.state.bi}/>
+                    <input type="text" name='bi' onChange={this.handleChange} value={this.state.bi} />
                 </div>
             </div>
             <div className='ComplexXRYRXI'>

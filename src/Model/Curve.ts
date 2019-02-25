@@ -1,72 +1,56 @@
-import { Color } from 'src/Lib/Color';
+// import { Complex } from "src/Lib/Complex";
+import { Data } from 'src/Lib/Data';
 import { Formula } from 'src/Lib/Formula';
 import { Param } from 'src/Lib/Param';
-import Complex from "../Lib/Complex";
-
-import { Data } from 'src/Lib/Data';
-import Model from './Model';
+import { Parser } from 'src/Lib/Parser';
+import { XValue } from 'src/Lib/XValue';
 
 export class Curve {
-  public color: Color;
-  public index: number;
-  public disabled: boolean;
-  public name: string;
+  public params: any = {};
 
-  constructor(public formulae: Formula[], params: Param[]) {
-    this.color = {
-      b: Math.round(255 * Math.random()),
-      g: Math.round(255 * Math.random()),
-      r: Math.round(255 * Math.random()),
-    };
-
-    const needParams = this.formulae[0].getParamNames();
-    for (const param of needParams) {
-      for (const func of this.formulae) {
-        func.setVariable(param, new Complex(0, 0));
-      }
-    }
+  constructor(public formulae: string[], params?: Param[]) {
     if (params) {
       for (const param of params) {
-        this.setParam(param.name, param.value);
+        this.params[param.name] = param.value;
       }
     }
   }
 
-  public getParamNames() {
-    return this.formulae[0].getParamNames();
-  }
+  public getParamNames(): Set<string> {
+    const formulae = this.parseFormulae();
+    let params: Set<string> = new Set();
 
-  public getParams() {
-    return this.formulae[0].getParams();
-  }
-
-  public getParam(name: string) {
-    return this.formulae[0].getParam(name);
-  }
-
-  public setParam(name: string, value: Complex) {
-    for (const formula of this.formulae) {
-      formula.setVariable(name, value);
+    for (const formula of formulae) {
+        params = new Set([...params, ...formula.getParamNames()]);
     }
+
+    return params;
   }
 
-  public getData(model: Model): Data[] {
-    const data = [];
+  public getData(xArray: XValue[]): Data[] {
+    const formulae = this.parseFormulae();
 
-    for (let i = 0; i < model.matrixSize; i++) {
-      for (let j = 0; j < model.matrixSize; j++) {
-        const xr = model.start.xr + model.step * i + model.step / 2;
-        const xi = model.start.xi + model.step * j + model.step / 2;
-        let formulaIndex = 0;
-        for (const formula of this.formulae) {
-          formula.setVariable("x", new Complex(xr, xi));
-          const y = formula.calc();
-          data.push({ i, j, xr, xi, yr: y.re, yi: y.im, formula: formulaIndex++, curve: this.index });
-        }
+    const data: Data[] = [];
+
+    for (const x of xArray) {
+      const {i, j} = x;
+      this.params.x = x;
+      let formulaIndex = 0;
+
+      for (const formula of formulae) {
+        formula.params = this.params;
+
+        const y = formula.calc();
+        data.push({ i, j, xr: x.re, xi: x.im, yr: y.re, yi: y.im, formula: formulaIndex++});
       }
     }
 
     return data;
+  }
+
+  private parseFormulae(): Formula[] {
+    const parser = new Parser();
+    return this.formulae.map((text: string) => parser.eval(text));
   }
 }
 

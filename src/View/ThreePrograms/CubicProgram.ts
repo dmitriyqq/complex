@@ -1,24 +1,27 @@
 import * as THREE from "three";
 
-import Model from 'src/Model/Model';
+import { Mappings } from 'src/Lib/Mappings';
+import { Model } from 'src/Model/Model';
 import { project3d } from 'src/Model/Projection3D';
-import { IMappings } from 'src/UI/ViewBoxHeader';
 import { Program } from './Program';
 
 export default class CubicProgram extends Program {
   private meshes: any[] = [];
 
-  constructor(public model: Model, public mappings: IMappings) {
+  constructor(public model: Model, public mappings: Mappings) {
     super();
   }
 
   public render() {
+    // tslint:disable-next-line:no-console
+    console.log('CubicProgram.Render');
     super.render();
+    const {matrixSize} = this.model.properties;
     // console.log("projecting ");
     const data = project3d(this.model, this.mappings);
     // console.log("total data for geometry = " + this.data.size);
-
-    this.totalSize = this.cellSize * this.model.matrixSize;
+    const time = Date.now();
+    this.totalSize = this.cellSize * matrixSize;
 
     const materialsMap = new Map();
 
@@ -46,7 +49,7 @@ export default class CubicProgram extends Program {
       const y = -this.totalSize / 2 + (box.y + 1 / 2) * this.cellSize;
       const z = -this.totalSize / 2 + (box.z + 1 / 2) * this.cellSize;
 
-      const mat = getMatrerial(box.color);
+      const mat = getMatrerial({r: 255, g: 125, b: 167});
       // console.log(mat);
       const mesh = new THREE.Mesh(geometry, mat);
       this.meshes.push(mesh)
@@ -54,8 +57,13 @@ export default class CubicProgram extends Program {
       this.scene.add(mesh);
     }
 
+    // tslint:disable-next-line:no-console
+    console.error(`time three: ${Date.now() - time} ms`);
     // this.setupLight();
     // this.addGrid();
-    this.renderer.render(this.scene, this.camera);
+    const time2 = Date.now();
+    this.renderer.render(this.scene, this.camera.camera);
+    // tslint:disable-next-line:no-console
+    console.error(`time render: ${Date.now() - time2} ms`);
   }
 }
